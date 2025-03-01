@@ -9,7 +9,7 @@ export default function LoginPage() {
 
   const handleLogin = async () => {
     setLoading(true);
-    await signIn("github", { callbackUrl: "/" });
+    await signIn("github", { callbackUrl: "/git" });
     setLoading(false);
   };
 

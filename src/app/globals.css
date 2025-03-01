@@ -127,3 +127,188 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Animations */
+@keyframes scale-in {
+  from {
+    transform: scale(0);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-scale-in {
+  animation: scale-in 0.2s ease-out;
+}
+
+@keyframes slide-in {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-in {
+  animation: slide-in 0.3s ease-out;
+}
+
+/* Monaco Editor customizations */
+.monaco-editor .cursor {
+  transition: all 0.1s ease-out !important;
+}
+
+.monaco-editor .line-numbers {
+  font-family: 'Fira Code', monospace !important;
+}
+
+.monaco-editor .mtk1 {
+  font-family: 'Fira Code', monospace !important;
+}
+
+/* Syntax highlighting colors */
+.monaco-editor .mtk1 { color: #d4d4d4; }
+.monaco-editor .mtk2 { color: #1e1e1e; }
+.monaco-editor .mtk3 { color: #000080; }
+.monaco-editor .mtk4 { color: #6796e6; }
+.monaco-editor .mtk5 { color: #4ec9b0; }
+.monaco-editor .mtk6 { color: #b5cea8; }
+.monaco-editor .mtk7 { color: #646695; }
+.monaco-editor .mtk8 { color: #c586c0; }
+.monaco-editor .mtk9 { color: #9cdcfe; }
+.monaco-editor .mtk10 { color: #f44747; }
+.monaco-editor .mtk11 { color: #ce9178; }
+.monaco-editor .mtk12 { color: #6796e6; }
+.monaco-editor .mtk13 { color: #808080; }
+.monaco-editor .mtk14 { color: #d16969; }
+.monaco-editor .mtk15 { color: #dcdcaa; }
+.monaco-editor .mtk16 { color: #4ec9b0; }
+.monaco-editor .mtk17 { color: #c586c0; }
+
+/* Diff colors */
+.diff-add {
+  background-color: rgba(40, 167, 69, 0.2);
+}
+
+.diff-remove {
+  background-color: rgba(220, 53, 69, 0.2);
+}
+
+/* Loading states */
+.loading-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.1) 0%,
+    rgba(255, 255, 255, 0.2) 50%,
+    rgba(255, 255, 255, 0.1) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Focus styles */
+*:focus-visible {
+  outline: 2px solid theme('colors.blue.500');
+  outline-offset: 2px;
+}
+
+/* Transitions */
+.transition-all {
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+/* Custom selection color */
+::selection {
+  background-color: rgba(59, 130, 246, 0.3);
+}
+
+/* Editor cursor decorations */
+.cursor-decoration {
+  background-color: transparent;
+  border-left-style: solid;
+  border-left-width: 2px;
+  box-sizing: border-box;
+  pointer-events: none;
+}
+
+.cursor-glyph {
+  width: 4px !important;
+  margin-left: 5px;
+}
+
+.cursor-margin {
+  width: 5px;
+  height: 100%;
+  position: absolute;
+  left: 0;
+}
+
+/* Custom scrollbar for dark theme */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #27272a;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #3f3f46;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #52525b;
+}
+
+/* Dark theme enhancements */
+.dark {
+  color-scheme: dark;
+}
+
+/* Editor enhancements */
+.monaco-editor .margin {
+  background-color: #18181b !important;
+}
+
+.monaco-editor .minimap {
+  background-color: #18181b !important;
+}
