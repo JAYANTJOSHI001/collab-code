@@ -10,8 +10,8 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 
 interface FileExplorerProps {
   repoName: string | null;
-  files: string[];
-  handleFileSelect: (file: string) => void;
+  files: { path: string; content: string }[];
+  handleFileSelect: (file: { path: string; content: string }) => void;
   handleAddFile: (filePath: string) => void;
   handleAddFolder: (folderPath: string) => void;
 }
@@ -20,6 +20,7 @@ interface FileNode {
   name: string;
   path: string;
   type: 'file' | 'folder';
+  content?: string;
   children?: FileNode[];
 }
 
@@ -35,15 +36,43 @@ const FileExplorer = ({ repoName, files, handleFileSelect, handleAddFile, handle
   const [selectedPath, setSelectedPath] = useState<string | null>(null);
 
   // Build tree structure from flat file list
-  const buildFileTree = (files: string[]): FileNode[] => {
+  const buildFileTree = (files: { path: string; content: string }[]): FileNode[] => {
     const root: FileTreeMap = {};
 
-    files.forEach(filePath => {
-      const parts = filePath.split('/');
+    // Filter out invalid files and log them
+    const validFiles = files.filter(file => {
+      if (!file || typeof file !== 'object') {
+        console.warn('⚠️ [FileExplorer] Invalid file object:', file);
+        return false;
+      }
+      if (typeof file.path !== 'string' || !file.path.trim()) {
+        console.warn('⚠️ [FileExplorer] Invalid file path:', file);
+        return false;
+      }
+      if (typeof file.content !== 'string') {
+        console.warn('⚠️ [FileExplorer] Missing content for file:', file.path);
+        return false;
+      }
+      return true;
+    });
+
+    console.log('📁 [FileExplorer] Building file tree:', {
+      totalFiles: files.length,
+      validFiles: validFiles.length,
+      paths: validFiles.map(f => f.path)
+    });
+
+    validFiles.forEach(file => {
+      const parts = file.path.split('/');
       let currentLevel: FileTreeMap = root;
       let currentPath = '';
 
       parts.forEach((part, index) => {
+        if (!part.trim()) {
+          console.warn('⚠️ [FileExplorer] Empty path segment in:', file.path);
+          return;
+        }
+
         currentPath = currentPath ? `${currentPath}/${part}` : part;
         const isFile = index === parts.length - 1;
 
@@ -52,14 +81,14 @@ const FileExplorer = ({ repoName, files, handleFileSelect, handleAddFile, handle
             name: part,
             path: currentPath,
             type: isFile ? 'file' : 'folder',
+            content: isFile ? file.content : undefined,
             children: isFile ? undefined : []
           };
         }
-
-        if (!isFile) {
-          const folder = currentLevel[currentPath];
-          if (folder.type === 'folder' && folder.children) {
-            currentLevel = folder.children.reduce<FileTreeMap>((acc, node) => {
+        if (!isFile && currentLevel[currentPath].type === 'folder') {
+          const children = currentLevel[currentPath].children;
+          if (children) {
+            currentLevel = children.reduce<FileTreeMap>((acc, node) => {
               acc[node.path] = node;
               return acc;
             }, {});
@@ -70,6 +99,18 @@ const FileExplorer = ({ repoName, files, handleFileSelect, handleAddFile, handle
 
     return Object.values(root);
   };
+
+  // Add validation for files prop
+  if (!Array.isArray(files)) {
+    console.error('❌ [FileExplorer] Invalid files prop:', files);
+    return (
+      <div className="w-72 bg-zinc-900 border-r border-zinc-800 flex flex-col">
+        <div className="p-4 text-sm text-red-400">
+          Error: Invalid files data
+        </div>
+      </div>
+    );
+  }
 
   const fileTree = buildFileTree(files);
 
@@ -140,8 +181,17 @@ const FileExplorer = ({ repoName, files, handleFileSelect, handleAddFile, handle
               if (node.type === 'folder') {
                 toggleFolder(node.path);
               } else {
-                handleFileSelect(node.path);
-                setSelectedPath(node.path);
+                // Find the file content from the files prop
+                const fileData = files.find(f => f.path === node.path);
+                if (fileData) {
+                  handleFileSelect(fileData);
+                  setSelectedPath(node.path);
+                  console.log('📄 [FileExplorer] Selected file:', {
+                    path: node.path,
+                    hasContent: !!fileData.content,
+                    contentLength: fileData.content.length
+                  });
+                }
               }
             }}
             className={`w-full flex items-center px-2 py-1 text-sm hover:bg-zinc-800 transition-colors ${
@@ -174,7 +224,7 @@ const FileExplorer = ({ repoName, files, handleFileSelect, handleAddFile, handle
   };
 
   return (
-    <Card className="w-72 bg-zinc-900 border-r border-zinc-800 flex flex-col">
+    <div className="w-72 bg-zinc-900 border-r border-zinc-800 flex flex-col">
       {/* Header */}
       <div className="p-4">
         <div className="flex items-center justify-between mb-4">
@@ -272,7 +322,7 @@ const FileExplorer = ({ repoName, files, handleFileSelect, handleAddFile, handle
           )}
         </div>
       </ScrollArea>
-    </Card>
+    </div>
   );
 };
 

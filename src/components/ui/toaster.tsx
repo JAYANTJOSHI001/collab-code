@@ -26,14 +26,14 @@ export function Toaster() {
           <div>
             <p className="font-medium text-white">{toast.title}</p>
             {toast.description && (
-              <p className="text-sm text-gray-300">{toast.description}</p>
+              <p className="text-sm text-zinc-300">{toast.description}</p>
             )}
           </div>
           <button
             onClick={() => {
               // Close toast
             }}
-            className="ml-4 text-gray-400 hover:text-white transition-colors"
+            className="ml-4 text-zinc-400 hover:text-white transition-colors"
           >
             <FaTimes />
           </button>

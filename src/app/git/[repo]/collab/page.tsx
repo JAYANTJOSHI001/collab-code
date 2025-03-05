@@ -6,10 +6,10 @@ import { useParams } from "next/navigation";
 import { io, Socket } from "socket.io-client";
 import Editor, { useMonaco } from "@monaco-editor/react";
 import FileExplorer from "@/components/ui/fileExplorer";
-import Side from "@/components/ui/side";
+import {Side} from "@/components/ui/side";
 import { FaSave, FaGit, FaUsers, FaCode } from "react-icons/fa";
 import CommitMenu from "@/components/ui/CommitMenu";
-import GitOperations from "@/components/ui/GitOperations";
+import {GitOperations} from "@/components/ui/git-operations";
 import { useRouter } from "next/navigation";
 import { APP_CONFIG } from "@/constants";
 
@@ -33,6 +33,13 @@ interface FileContent {
 
 interface FileContents {
   [key: string]: FileContent;
+}
+
+interface UserCursor {
+  id: string;
+  line: number;
+  column: number;
+  color: string;
 }
 
 interface StatusBarItem {
@@ -98,8 +105,15 @@ interface FileVersion {
   lastModified: number;
 }
 
+interface GitOperationsProps {
+  repoName: string | null;
+  username: string;
+  currentBranch: string;
+  onBranchSwitch: (branch: string) => Promise<void>;
+}
+
 export default function CollaborativeEditor() {
-  const params = useParams();
+  const params = useParams<{ repo: string }>();
   const [repoName, setRepoName] = useState<string | null>(null);
   const [code, setCode] = useState<string>("");
   const [files, setFiles] = useState<string[]>([]);
@@ -134,10 +148,13 @@ export default function CollaborativeEditor() {
   const [isCommitView, setIsCommitView] = useState(false);
   const [isGitView, setIsGitView] = useState(false);
   const router = useRouter();
-
+  const [usersCursors, setUsersCursors] = useState<UserCursor[]>([
+    { id: "user1", line: 2, column: 5, color: "red" },
+    { id: "user2", line: 3, column: 10, color: "blue" },
+  ]);
   useEffect(() => {
     try {
-      socket = io("http://localhost:4000", {
+      socket = io("http://localhost:6000", {
         reconnection: true,
         reconnectionAttempts: 5,
         reconnectionDelay: 1000,
@@ -151,8 +168,9 @@ export default function CollaborativeEditor() {
         console.log("Connected with ID:", socket.id);
         
         // Rejoin room and request latest state
-        if (params.repo) {
-          const roomId = `repo-${params.repo}`;
+        const repo = params?.repo;
+        if (repo) {
+          const roomId = `repo-${repo}`;
           socket.emit("join-room", roomId, userId, userColor);
           socket.emit("request-state", roomId);
         }
@@ -200,7 +218,7 @@ export default function CollaborativeEditor() {
       setSocketError("Failed to initialize collaboration");
       setIsConnecting(false);
     }
-  }, []);
+  }, [params?.repo]);
 
   useEffect(() => {
     const storedHistory = JSON.parse(localStorage.getItem("fileHistory") || "[]") || [];
@@ -245,9 +263,10 @@ export default function CollaborativeEditor() {
   }, []);
 
   useEffect(() => {
-    if (params.repo && socket?.connected) {
-      setRepoName(params.repo as string);
-      const roomId = `repo-${params.repo}`;
+    const repo = params?.repo;
+    if (repo && socket?.connected) {
+      setRepoName(repo);
+      const roomId = `repo-${repo}`;
 
       socket.emit("join-room", roomId, userId, userColor);
       socket.on("load-code", (initialCode) => setCode(initialCode));
@@ -280,7 +299,7 @@ export default function CollaborativeEditor() {
       socket.on("cursor-update", (updatedCursors) => setCursors(updatedCursors));
       socket.on("file-change", (fileName) => setSelectedFile(fileName));
 
-      fetchRepoFiles(params.repo as string);
+      fetchRepoFiles(repo);
 
       return () => {
         socket.off("code-update");
@@ -289,7 +308,7 @@ export default function CollaborativeEditor() {
         socket.off("file-change");
       };
     }
-  }, [params.repo, socket?.connected]);
+  }, [params?.repo, socket?.connected]);
 
   async function fetchRepoFiles(repo: string) {
     try {
@@ -1028,10 +1047,8 @@ export default function CollaborativeEditor() {
         {/* Sidebar - file explorer or git operations */}
         {isGitView ? (
           <GitOperations
-            repoName={repoName}
-            username={username}
-            currentBranch={gitBranch}
-            onBranchSwitch={handleBranchSwitch}
+            roomId={params?.repo || ''}
+            onClose={() => setIsGitView(false)}
           />
         ) : isCommitView ? (
           <CommitMenu
@@ -1044,7 +1061,7 @@ export default function CollaborativeEditor() {
           <FileExplorer 
             repoName={repoName} 
             files={files} 
-            handleFileSelect={handleFileSelection} 
+            handleFileSelect={(file: { path: string; content: string }) => handleFileSelection(file.path)}
             handleAddFile={addFile}
             handleAddFolder={addFolder}
           />
@@ -1075,7 +1092,7 @@ export default function CollaborativeEditor() {
                 language={getLanguage(selectedFile)}
                 value={code}
                 onChange={handleEditorChange}
-                onMount={(editor) => {
+                onMount={(editor: any) => {
                   editorRef.current = editor;
                 }}
                 options={{

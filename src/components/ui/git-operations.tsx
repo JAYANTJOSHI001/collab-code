@@ -66,13 +66,13 @@ export function GitOperations({ roomId, onClose }: GitOperationsProps) {
   };
 
   return (
-    <Card className="w-96 bg-gray-800 border-gray-700">
-      <div className="p-6 border-b border-gray-700">
+    <Card className="w-96 bg-zinc-800 border-zinc-700">
+      <div className="p-6 border-b border-zinc-700">
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-semibold">Git Operations</h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-white transition-colors"
+            className="text-zinc-400 hover:text-white transition-colors"
           >
             <FaTimes />
           </button>
@@ -81,13 +81,13 @@ export function GitOperations({ roomId, onClose }: GitOperationsProps) {
 
       <div className="p-6 space-y-6">
         <div>
-          <label className="block text-sm font-medium text-gray-400 mb-2">
+          <label className="block text-sm font-medium text-zinc-400 mb-2">
             Current Branch
           </label>
           <select
             value={selectedBranch}
             onChange={(e) => setSelectedBranch(e.target.value)}
-            className="w-full bg-gray-700 text-white border border-gray-600 rounded-lg p-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+            className="w-full bg-zinc-700 text-white border border-zinc-600 rounded-lg p-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
           >
             {branches.map((branch) => (
               <option key={branch.name} value={branch.name}>
@@ -98,7 +98,7 @@ export function GitOperations({ roomId, onClose }: GitOperationsProps) {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-400 mb-2">
+          <label className="block text-sm font-medium text-zinc-400 mb-2">
             Pull Request Title
           </label>
           <input
@@ -106,24 +106,24 @@ export function GitOperations({ roomId, onClose }: GitOperationsProps) {
             value={prTitle}
             onChange={(e) => setPrTitle(e.target.value)}
             placeholder="Enter a title for your pull request"
-            className="w-full bg-gray-700 text-white placeholder:text-gray-400 border border-gray-600 rounded-lg p-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+            className="w-full bg-zinc-700 text-white placeholder:text-zinc-400 border border-zinc-600 rounded-lg p-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-400 mb-2">
+          <label className="block text-sm font-medium text-zinc-400 mb-2">
             Pull Request Description
           </label>
           <textarea
             value={prDescription}
             onChange={(e) => setPrDescription(e.target.value)}
             placeholder="Describe your changes..."
-            className="w-full bg-gray-700 text-white placeholder:text-gray-400 border border-gray-600 rounded-lg p-3 h-24 resize-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+            className="w-full bg-zinc-700 text-white placeholder:text-zinc-400 border border-zinc-600 rounded-lg p-3 h-24 resize-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
           />
         </div>
       </div>
 
-      <div className="p-6 border-t border-gray-700">
+      <div className="p-6 border-t border-zinc-700">
         <button
           onClick={createPullRequest}
           disabled={!prTitle.trim() || !selectedBranch}

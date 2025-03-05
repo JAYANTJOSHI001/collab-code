@@ -12,7 +12,7 @@ export const theme = {
       800: '#002e62',
       900: '#001731',
     },
-    gray: {
+    zinc: {
       50: '#f9fafb',
       100: '#f3f4f6',
       200: '#e5e7eb',

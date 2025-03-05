@@ -68,13 +68,13 @@ export function Toast({ message, type = 'info', duration = 3000, onClose }: Toas
       role="alert"
     >
       <Icon className="text-xl" style={{ color: typeConfig[type].color }} />
-      <p className="text-sm font-medium text-gray-900">{message}</p>
+      <p className="text-sm font-medium text-zinc-900">{message}</p>
       <button
         onClick={() => {
           setIsVisible(false);
           onClose?.();
         }}
-        className="ml-4 text-gray-500 hover:text-gray-700 transition-colors"
+        className="ml-4 text-zinc-500 hover:text-zinc-700 transition-colors"
       >
         <FaTimes />
       </button>

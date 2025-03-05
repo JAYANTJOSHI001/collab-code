@@ -32,11 +32,11 @@ export default function CommitMenu({ repoName, username, changes, onCommit }: Co
   };
 
   return (
-    <Card className="w-96 bg-gray-800 border-gray-700">
-      <div className="p-6 border-b border-gray-700">
+    <Card className="w-96 bg-zinc-800 border-zinc-700">
+      <div className="p-6 border-b border-zinc-700">
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-semibold">Commit Changes</h2>
-          <div className="text-sm text-gray-400">
+          <div className="text-sm text-zinc-400">
             {repoName && <span>{username}/{repoName}</span>}
           </div>
         </div>
@@ -44,19 +44,19 @@ export default function CommitMenu({ repoName, username, changes, onCommit }: Co
 
       <div className="p-6 space-y-6">
         <div>
-          <label className="block text-sm font-medium text-gray-400 mb-2">
+          <label className="block text-sm font-medium text-zinc-400 mb-2">
             Commit Message
           </label>
           <textarea
             value={commitMessage}
             onChange={(e) => setCommitMessage(e.target.value)}
             placeholder="Enter a descriptive commit message..."
-            className="w-full bg-gray-700 text-white placeholder:text-gray-400 border border-gray-600 rounded-lg p-3 h-24 resize-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+            className="w-full bg-zinc-700 text-white placeholder:text-zinc-400 border border-zinc-600 rounded-lg p-3 h-24 resize-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-400 mb-4">
+          <label className="block text-sm font-medium text-zinc-400 mb-4">
             Changed Files ({changes.length})
           </label>
           <div className="space-y-2">
@@ -67,7 +67,7 @@ export default function CommitMenu({ repoName, username, changes, onCommit }: Co
                   className={`w-full flex items-center justify-between p-3 rounded-lg transition-colors ${
                     selectedFiles.includes(file)
                       ? "bg-blue-500 text-white"
-                      : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+                      : "bg-zinc-700 text-zinc-300 hover:bg-zinc-600"
                   }`}
                 >
                   <div className="flex items-center gap-3">
@@ -78,7 +78,7 @@ export default function CommitMenu({ repoName, username, changes, onCommit }: Co
                     className={`w-5 h-5 rounded flex items-center justify-center ${
                       selectedFiles.includes(file)
                         ? "bg-blue-600"
-                        : "bg-gray-600 group-hover:bg-gray-500"
+                        : "bg-zinc-600 group-hover:bg-zinc-500"
                     }`}
                   >
                     {selectedFiles.includes(file) ? (
@@ -94,7 +94,7 @@ export default function CommitMenu({ repoName, username, changes, onCommit }: Co
         </div>
       </div>
 
-      <div className="p-6 border-t border-gray-700">
+      <div className="p-6 border-t border-zinc-700">
         <button
           onClick={handleCommit}
           disabled={!commitMessage.trim() || selectedFiles.length === 0}

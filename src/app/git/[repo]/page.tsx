@@ -6,9 +6,9 @@ export default function RepoPage({ params }: { params: { repo: string } }) {
   const repoName = params.repo;
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center justify-center">
+    <div className="min-h-screen bg-zinc-900 text-white flex flex-col items-center justify-center">
       <h1 className="text-3xl font-bold">{repoName}</h1>
-      <p className="text-gray-400">Collaborate in real-time with your team.</p>
+      <p className="text-zinc-400">Collaborate in real-time with your team.</p>
 
       <button
         onClick={() => router.push(`/git/${repoName}/collab`)}

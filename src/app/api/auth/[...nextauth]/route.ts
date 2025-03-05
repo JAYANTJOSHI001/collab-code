@@ -60,7 +60,8 @@ export const authOptions: NextAuthOptions = {
           id: profile.id,
           login: profile.login,
           hasEmail: !!profile.email,
-          hasName: !!profile.name
+          hasName: !!profile.name,
+          raw: profile // Log the raw profile for debugging
         });
         return {
           id: profile.id.toString(),
@@ -98,7 +99,14 @@ export const authOptions: NextAuthOptions = {
       console.log("JWT Callback:", {
         hasToken: !!token,
         hasAccount: !!account,
-        hasProfile: !!profile
+        hasProfile: !!profile,
+        tokenKeys: token ? Object.keys(token) : [],
+        accountDetails: account ? {
+          type: account.type,
+          provider: account.provider,
+          hasAccessToken: !!account.access_token,
+          scope: account.scope
+        } : null
       });
 
       if (account && profile) {
@@ -120,7 +128,9 @@ export const authOptions: NextAuthOptions = {
     async session({ session, token }) {
       console.log("Session Callback:", {
         hasSession: !!session,
-        hasToken: !!token
+        hasToken: !!token,
+        sessionKeys: session ? Object.keys(session) : [],
+        tokenKeys: token ? Object.keys(token) : []
       });
 
       if (token) {
@@ -139,15 +149,40 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
     async signIn({ user, account, profile }) {
-      console.log("SignIn Callback - Start");
+      console.log("SignIn Callback - Start:", { 
+        hasUser: !!user, 
+        hasAccount: !!account, 
+        hasProfile: !!profile,
+        apiUrl: process.env.NEXT_PUBLIC_API_URL,
+        userDetails: user ? {
+          id: user.id,
+          email: user.email,
+          name: user.name
+        } : null,
+        accountDetails: account ? {
+          type: account.type,
+          provider: account.provider,
+          hasAccessToken: !!account.access_token
+        } : null
+      });
 
       if (!user || !account || !profile) {
-        console.error("SignIn Callback - Missing Data");
+        console.error("SignIn Callback - Missing Data:", {
+          hasUser: !!user,
+          hasAccount: !!account,
+          hasProfile: !!profile
+        });
         return false;
       }
 
       try {
         const githubProfile = profile as GitHubProfile;
+        console.log("SignIn Callback - API Request:", {
+          url: `${process.env.NEXT_PUBLIC_API_URL}/auth/user`,
+          githubId: githubProfile.id,
+          username: githubProfile.login
+        });
+
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/user`, {
           method: "POST",
           headers: {
@@ -175,24 +210,29 @@ export const authOptions: NextAuthOptions = {
         });
 
         if (!response.ok) {
-          console.error("SignIn Callback - API Error:", response.status);
+          const errorData = await response.text();
+          console.error("SignIn Callback - API Error:", {
+            status: response.status,
+            statusText: response.statusText,
+            error: errorData,
+            headers: Object.fromEntries(response.headers.entries())
+          });
           return false;
         }
 
         console.log("SignIn Callback - Success");
         return true;
       } catch (error) {
-        console.error("SignIn Callback - Exception:", error);
+        console.error("SignIn Callback - Exception:", {
+          error: error instanceof Error ? {
+            message: error.message,
+            stack: error.stack
+          } : error,
+          type: typeof error
+        });
         return false;
       }
     },
-    async redirect({ url, baseUrl }) {
-      // Always redirect to /git after successful sign in
-      if (url.startsWith(baseUrl)) {
-        return `${baseUrl}/git`;
-      }
-      return url;
-    }
   },
   pages: {
     signIn: "/login",
@@ -200,7 +240,6 @@ export const authOptions: NextAuthOptions = {
   },
   session: {
     strategy: "jwt",
-    maxAge: 30 * 24 * 60 * 60, // 30 days
   },
 };
 

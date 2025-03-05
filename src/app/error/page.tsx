@@ -30,13 +30,13 @@ export default function ErrorPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
-      <div className="max-w-md w-full bg-gray-800 rounded-lg shadow-lg p-8 text-center">
+    <div className="min-h-screen bg-zinc-900 flex items-center justify-center p-4">
+      <div className="max-w-md w-full bg-zinc-800 rounded-lg shadow-lg p-8 text-center">
         <div className="flex justify-center mb-6">
           <FaExclamationTriangle className="text-red-500 text-5xl" />
         </div>
         <h1 className="text-2xl font-bold text-white mb-4">Authentication Error</h1>
-        <p className="text-gray-300 mb-6">
+        <p className="text-zinc-300 mb-6">
           {error ? getErrorMessage(error) : "An error occurred during authentication."}
         </p>
         <div className="space-y-4">
@@ -48,7 +48,7 @@ export default function ErrorPage() {
           </button>
           <button
             onClick={() => router.push("/")}
-            className="w-full bg-gray-700 hover:bg-gray-600 text-white py-2 px-4 rounded transition-colors"
+            className="w-full bg-zinc-700 hover:bg-zinc-600 text-white py-2 px-4 rounded transition-colors"
           >
             Go Home
           </button>

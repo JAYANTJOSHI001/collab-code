@@ -9,19 +9,19 @@ export default function LoginPage() {
 
   const handleLogin = async () => {
     setLoading(true);
-    await signIn("github", { callbackUrl: "/git" });
+    await signIn("github", { callbackUrl: "/" });
     setLoading(false);
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-900 text-white">
-      <div className="p-8 max-w-md w-full bg-gray-800 rounded-2xl shadow-lg text-center">
+    <div className="flex items-center justify-center min-h-screen bg-zinc-900 text-white">
+      <div className="p-8 max-w-md w-full bg-zinc-800 rounded-2xl shadow-lg text-center">
         <h1 className="text-3xl font-semibold mb-6">Welcome Back</h1>
-        <p className="text-gray-400 mb-4">Sign in to continue</p>
+        <p className="text-zinc-400 mb-4">Sign in to continue</p>
 
         <button
           onClick={handleLogin}
-          className="flex items-center justify-center w-full py-3 px-4 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-all"
+          className="flex items-center justify-center w-full py-3 px-4 bg-zinc-700 hover:bg-zinc-600 text-white rounded-lg transition-all"
           disabled={loading}
         >
           {loading ? (
