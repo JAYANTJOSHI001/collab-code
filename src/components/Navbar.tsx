@@ -3,57 +3,89 @@
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { FaUser } from "react-icons/fa";
+import { FaUser, FaCode} from "react-icons/fa";
+import { motion } from "framer-motion";
+import { useState, useEffect } from "react";
 
 export default function Navbar() {
   const { data: session } = useSession();
   const router = useRouter();
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 0);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   return (
-    <nav className="bg-zinc-800 shadow-lg">
+    <nav className={`sticky top-0 z-50 transition-all duration-300 ${
+      scrolled 
+        ? 'bg-black/50 backdrop-blur-lg border-b border-white/10' 
+        : 'bg-black border-b border-transparent'
+    }`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
-          <div className="flex">
-            <div className="flex-shrink-0 flex items-center">
+          <div className="flex items-center gap-8">
+            <motion.div 
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5 }}
+            >
               <button 
-                onClick={() => router.push('/git')}
-                className="text-xl font-bold text-white hover:text-gray-200 transition-colors"
+                onClick={() => router.push('/dashboard')}
+                className="flex items-center gap-2 text-xl font-bold bg-gradient-to-r from-white to-blue-400 bg-clip-text text-transparent hover:from-blue-400 hover:to-white transition-all duration-300"
               >
+                <FaCode className="text-blue-500" />
                 Collab
               </button>
-            </div>
+            </motion.div>
           </div>
           
-          <div className="flex items-center">
+          <motion.div 
+            className="flex items-center gap-4"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5 }}
+          >
             {session?.user?.image ? (
-              <button
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={() => router.push('/profile')}
-                className="flex items-center space-x-3 hover:opacity-80 transition-opacity"
+                className="flex items-center space-x-3 bg-blue-950/30 px-4 py-2 rounded-full border border-white/10 hover:border-blue-500/50 hover:bg-blue-900/20 transition-all duration-300"
               >
-                <span className="text-sm font-medium text-white">
+                <span className="text-sm font-medium text-blue-200">
                   {session.user.name}
                 </span>
-                <div className="relative h-8 w-8 rounded-full overflow-hidden">
+                <div className="relative h-8 w-8 rounded-full overflow-hidden ring-2 ring-blue-500/50">
                   <Image
                     src={session?.user?.image || ''}
                     alt="Profile"
                     fill
                     className="object-cover"
+                    sizes="32px"
+                    priority
                   />
                 </div>
-              </button>
+              </motion.button>
             ) : (
-              <button
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={() => router.push('/profile')}
-                className="flex items-center space-x-2 text-white hover:text-gray-200 transition-colors"
+                className="flex items-center space-x-2 bg-blue-950/30 px-4 py-2 rounded-full border border-white/10 hover:border-blue-500/50 hover:bg-blue-900/20 transition-all duration-300"
               >
-                <FaUser className="h-5 w-5" />
-                <span className="text-sm font-medium">Profile</span>
-              </button>
+                <FaUser className="h-5 w-5 text-blue-400" />
+                <span className="text-sm font-medium text-blue-200">Profile</span>
+              </motion.button>
             )}
-          </div>
+          </motion.div>
         </div>
       </div>
     </nav>
   );
-} 
+}

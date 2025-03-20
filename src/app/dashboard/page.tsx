@@ -7,6 +7,7 @@ import axios from "axios";
 import { FaCodeBranch, FaSpinner } from "react-icons/fa";
 import { useToast } from "@/hooks/use-toast";
 import Navbar from "@/components/Navbar";
+import { motion } from "framer-motion";
 
 interface Repository {
   id: number;
@@ -151,11 +152,15 @@ export default function Dashboard() {
     return (
       <>
         <Navbar />
-        <div className="flex items-center justify-center min-h-[calc(100vh-4rem)]">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-200 mx-auto"></div>
-            <p className="mt-4 text-gray-200">Loading your repositories...</p>
-          </div>
+        <div className="flex items-center justify-center min-h-[calc(100vh-4rem)] bg-gradient-to-br from-black via-blue-950 to-black">
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="text-center"
+          >
+            <div className="w-16 h-16 border-t-2 border-b-2 border-blue-500 rounded-full animate-spin mx-auto"></div>
+            <p className="mt-6 text-blue-200">Loading your repositories...</p>
+          </motion.div>
         </div>
       </>
     );
@@ -164,45 +169,65 @@ export default function Dashboard() {
   return (
     <>
       <Navbar />
-      <div className="min-h-screen p-8 bg-zinc-900">
+      <div className="min-h-screen bg-black">
         <div className="max-w-7xl mx-auto">
-          <header className="mb-8">
-            <h1 className="text-3xl font-bold text-white">Your Repositories</h1>
-            <p className="text-zinc-400">Select a repository to start collaborating</p>
-          </header>
+          <motion.header 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-12"
+          >
+            <h1 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-blue-400">
+              Your Repositories
+            </h1>
+            <p className="text-blue-200/80 mt-2">Select a repository to start collaborating</p>
+          </motion.header>
 
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {repos.map((repo) => (
-              <div
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {repos.map((repo, index) => (
+              <motion.div
                 key={repo.id}
-                className="bg-zinc-800 rounded-lg p-6 hover:bg-zinc-700 transition-colors"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+                className="group relative"
               >
-                <div className="flex items-start justify-between">
-                  <div>
-                    <h2 className="text-xl font-semibold text-white">{repo.name}</h2>
-                    {repo.description && (
-                      <p className="mt-2 text-zinc-400 text-sm">{repo.description}</p>
-                    )}
-                  </div>
-                  {repo.private && (
-                    <span className="bg-zinc-700 text-xs px-2 py-1 rounded text-zinc-300">
-                      Private
+                <div className="absolute inset-0 bg-blue-500/5 rounded-xl blur-xl group-hover:bg-blue-500/10 transition-all" />
+                <div className="relative bg-blue-950/30 backdrop-blur-xl border border-white/10 rounded-xl p-6 hover:border-blue-500/50 transition-all duration-300">
+                  <div className="flex items-start justify-between mb-4">
+                    <div>
+                      <h2 className="text-xl font-semibold text-white group-hover:text-blue-300 transition-colors">
+                        {repo.name}
+                      </h2>
+                      {repo.description && (
+                        <p className="mt-2 text-blue-200/70 text-sm line-clamp-2">
+                          {repo.description}
+                        </p>
+                      )}
+                    </div>
+                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                      repo.private 
+                        ? 'bg-blue-900/50 text-blue-300' 
+                        : 'bg-blue-500/20 text-blue-200'
+                    }`}>
+                      {repo.private ? 'Private' : 'Public'}
                     </span>
-                  )}
-                </div>
+                  </div>
 
-                <button
-                  onClick={() => startCollaboration(repo)}
-                  className="mt-4 w-full flex items-center justify-center gap-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-500 transition-colors"
-                >
-                  <FaCodeBranch />
-                  Start Collaboration
-                </button>
-              </div>
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => startCollaboration(repo)}
+                    className="mt-4 w-full flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white px-4 py-3 rounded-lg transition-all duration-300 shadow-lg shadow-blue-500/25"
+                  >
+                    <FaCodeBranch className="text-blue-200" />
+                    Start Collaboration
+                  </motion.button>
+                </div>
+              </motion.div>
             ))}
           </div>
         </div>
       </div>
     </>
   );
-} 
+}

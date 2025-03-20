@@ -13,7 +13,7 @@ export function CollaboratorsList({ users = [], currentFile }: CollaboratorsList
   }, [users]);
 
   return (
-    <div className="p-4 bg-zinc-900 border-l border-zinc-800 w-64">
+    <div className="p-4 bg-zinc-900 h-full border-l border-zinc-800 w-64">
       <h3 className="text-sm font-semibold text-zinc-300 mb-4">Active Collaborators</h3>
       <div className="space-y-3">
         {users?.map((user) => (

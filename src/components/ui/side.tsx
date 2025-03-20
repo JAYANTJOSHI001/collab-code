@@ -1,8 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { FaCodeBranch, FaClipboardCheck, FaCode, FaGitAlt } from "react-icons/fa";
-import { Card } from "@/components/ui/card";
+import { FaClipboardCheck, FaCode, FaGitAlt } from "react-icons/fa";
 
 interface SideProps {
   onCommitClick: () => void;
@@ -47,14 +46,6 @@ export function Side({ onCommitClick, isCommitView, onGitClick, isGitView }: Sid
             }`}
           >
             <FaGitAlt size={20} />
-          </button>
-        </li>
-        <li>
-          <button
-            onClick={() => router.push("/prs")}
-            className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-zinc-700 transition-colors text-zinc-400 hover:text-white"
-          >
-            <FaCodeBranch size={20} />
           </button>
         </li>
       </ul>

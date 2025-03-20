@@ -17,10 +17,10 @@ interface CodeHistoryProps {
 
 export function CodeHistory({ versions, onRestoreVersion, onClose }: CodeHistoryProps) {
   return (
-    <div className="fixed right-0 top-0 h-screen w-80 bg-zinc-900 border-l border-zinc-800 p-4 shadow-lg">
+    <div className="fixed right-0 top-0 h-screen w-100 bg-zinc-900 border-l border-zinc-800 p-4 shadow-lg">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-semibold text-white">Code History</h3>
-        <Button variant="ghost" onClick={onClose} className="text-zinc-400 hover:text-white">
+        <Button variant="ghost" onClick={onClose} className="text-zinc-400 hover:text-black">
           ✕
         </Button>
       </div>

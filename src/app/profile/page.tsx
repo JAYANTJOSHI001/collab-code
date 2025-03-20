@@ -13,6 +13,7 @@ interface UserProfile {
   username: string;
   name: string | null;
   email: string | null;
+  profile: object | null;
   avatarUrl: string;
   bio: string | null;
   company: string | null;
@@ -92,7 +93,7 @@ export default function Profile() {
   }
 
   return (
-    <>
+    <div className="bg-black text-white">
       <Navbar />
       <div className="container mx-auto px-4 py-8">
         <button
@@ -102,10 +103,9 @@ export default function Profile() {
           <FaArrowLeft className="mr-2" />
           Back to Dashboard
         </button>
-        
-        <div className="max-w-3xl mx-auto bg-white rounded-lg shadow-lg overflow-hidden">
-          <div className="md:flex">
-            <div className="md:flex-shrink-0 p-6">
+        <div className="max-w-7xl mx-auto border-2 border-white rounded-lg shadow-lg overflow-hidden">
+          <div className="md:flex-col md:items-left">
+            <div className="md:flex gap-6 p-6">
               {profile?.avatarUrl && (
                 <div className="relative h-48 w-48 mx-auto">
                   <Image
@@ -116,61 +116,37 @@ export default function Profile() {
                   />
                 </div>
               )}
+              <div className="flex flex-col items-left justify-center">
+                <h1 className="text-3xl font-bold">{profile?.name}</h1>
+                <span className="text-zinc-400">@{profile?.username}</span>
+                <p className="text-zinc-400">{profile?.profile?.bio}</p>
+              </div>
             </div>
-            <div className="p-8">
-              <div className="uppercase tracking-wide text-sm text-indigo-500 font-semibold">
-                GitHub Profile
+            <div className="grid grid-cols-2 gap-6 p-6 rounded-lg">
+              <div className="flex flex-col items-left justify-center bg-white p-4 rounded-lg">
+                <span className="text-black">Rooms</span>
+                <p className="text-black font-semibold">{profile?.rooms?.length || "0"}</p>
               </div>
-              <h1 className="mt-2 text-3xl font-bold text-zinc-900">
-                {profile?.name || profile?.username}
-              </h1>
-              <p className="mt-2 text-zinc-600">@{profile?.username}</p>
-              
-              {profile?.bio && (
-                <p className="mt-4 text-zinc-600">{profile.bio}</p>
-              )}
-
-              <div className="mt-6 grid grid-cols-2 gap-4">
-                <div>
-                  <h3 className="text-zinc-500">Company</h3>
-                  <p className="font-medium">{profile?.company || 'Not specified'}</p>
-                </div>
-                <div>
-                  <h3 className="text-zinc-500">Location</h3>
-                  <p className="font-medium">{profile?.location || 'Not specified'}</p>
-                </div>
-                <div>
-                  <h3 className="text-zinc-500">Email</h3>
-                  <p className="font-medium">{profile?.email || 'Not specified'}</p>
-                </div>
-                <div>
-                  <h3 className="text-zinc-500">Member Since</h3>
-                  <p className="font-medium">
-                    {profile?.created_at
-                      ? new Date(profile.created_at).toLocaleDateString()
-                      : 'Not available'}
-                  </p>
-                </div>
+              <div className="flex flex-col items-left justify-center bg-white p-4 rounded-lg">
+                <span className="text-black">Followers</span>
+                <p className="text-black font-semibold">{profile?.profile?.followers || "Not Available"}</p>
               </div>
-
-              <div className="mt-6 flex space-x-6">
-                <div>
-                  <span className="text-2xl font-bold text-zinc-900">{profile?.followers}</span>
-                  <p className="text-zinc-500">Followers</p>
-                </div>
-                <div>
-                  <span className="text-2xl font-bold text-zinc-900">{profile?.following}</span>
-                  <p className="text-zinc-500">Following</p>
-                </div>
-                <div>
-                  <span className="text-2xl font-bold text-zinc-900">{profile?.public_repos}</span>
-                  <p className="text-zinc-500">Repositories</p>
-                </div>
+              <div className="flex flex-col items-left justify-center bg-white p-4 rounded-lg">
+                <span className="text-black">Following</span>
+                <p className="text-black font-semibold">{profile?.profile?.following || "Not Available"}</p>
+              </div>
+              <div className="flex flex-col items-left justify-center bg-white p-4 rounded-lg">
+                <span className="text-black">Public Repos</span>
+                <p className="text-black font-semibold">{profile?.profile?.public_repos || "Not Available"}</p>
+              </div>
+              <div className="flex flex-col items-left justify-center bg-white p-4 rounded-lg">
+                <span className="text-black">Location</span>
+                <p className="text-black font-semibold">{profile?.profile?.location || "Not Available"}</p>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 } 

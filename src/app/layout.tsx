@@ -1,20 +1,20 @@
 "use client";
-
-import { SessionProvider } from "next-auth/react";
-import { ThemeProvider } from "next-themes";
-import { Toaster } from "@/components/ui/toaster";
 import './globals.css';
+// Add this import at the top with other imports
+import NextAuthSessionProvider from "@/components/providers/SessionProvider";
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+// Wrap your app component with the SocketProvider
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className="min-h-screen bg-zinc-900 text-white">
-        <SessionProvider>
-          <ThemeProvider attribute="class" defaultTheme="dark">
-            {children}
-            <Toaster />
-          </ThemeProvider>
-        </SessionProvider>
+    <html lang="en">
+      <body>
+        <NextAuthSessionProvider>
+          {children}
+        </NextAuthSessionProvider>
       </body>
     </html>
   );
