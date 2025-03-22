@@ -24,7 +24,7 @@
 - **Advanced Editor**: Powered by Monaco Editor (same as VS Code) with syntax highlighting and auto-completion
 - **Version Control**: Track changes and restore previous versions of your code
 - **GitHub Integration**: Seamlessly connect with your GitHub repositories
-- **In-Browser Code Execution**: Run JavaScript and Python code directly in your browser
+- **In-Browser Code Execution(Upcoming)**: Run JavaScript and Python code directly in your browser
 - **Team Collaboration**: Invite team members and set custom permissions
 
 ## Getting Started
