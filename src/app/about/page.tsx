@@ -10,36 +10,14 @@ import Footer from '@/components/ui/Footer';
 // Team members data
 const teamMembers = [
   {
-    name: 'Alex Johnson',
+    name: 'Jayant Joshi',
     role: 'Founder & Lead Developer',
-    bio: 'Full-stack developer with a passion for real-time collaboration tools. Previously worked at Google and GitHub.',
-    image: '/team/alex.jpg',
+    bio: 'Full-stack developer with a passion for real-time collaboration tools. Previously worked at many big projects.',
+    image: "/jayant.png",
     social: {
-      github: 'https://github.com/alexj',
-      twitter: 'https://twitter.com/alexj',
-      linkedin: 'https://linkedin.com/in/alexj'
-    }
-  },
-  {
-    name: 'Sarah Chen',
-    role: 'UX Designer & Frontend Developer',
-    bio: 'Designer turned developer with expertise in creating intuitive coding interfaces. Advocate for accessible developer tools.',
-    image: '/team/sarah.jpg',
-    social: {
-      github: 'https://github.com/sarahc',
-      twitter: 'https://twitter.com/sarahc',
-      linkedin: 'https://linkedin.com/in/sarahc'
-    }
-  },
-  {
-    name: 'Michael Rodriguez',
-    role: 'Backend Engineer',
-    bio: 'Systems architect specializing in real-time data synchronization and WebRTC. Open source contributor to various collaboration tools.',
-    image: '/team/michael.jpg',
-    social: {
-      github: 'https://github.com/michaelr',
-      twitter: 'https://twitter.com/michaelr',
-      linkedin: 'https://linkedin.com/in/michaelr'
+      github: 'https://github.com/JAYANTJOSHI001',
+      twitter: 'https://x.com/jayantjoshi_',
+      linkedin: 'https://www.linkedin.com/in/jayant-joshi-642a79305/'
     }
   }
 ];
@@ -270,113 +248,6 @@ export default function About() {
           </div>
         </div>
       </section>
-
-      {/* Contact Section */}
-      <section className="py-20 bg-blue-900 text-white">
-        <div className="container mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-            className="text-center mb-12"
-          >
-            <h2 className="text-3xl md:text-4xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-white to-blue-300">
-              Connect With Us
-            </h2>
-            <p className="text-xl text-blue-200 max-w-2xl mx-auto">
-              Have questions or want to join our community? Reach out!
-            </p>
-          </motion.div>
-
-          <div className="max-w-4xl mx-auto flex flex-wrap justify-center gap-6">
-            <motion.a
-              whileHover={{ y: -5, scale: 1.05 }}
-              href="mailto:hello@collabcode.dev"
-              className="flex items-center justify-center gap-3 bg-white text-blue-900 px-6 py-4 rounded-xl shadow-lg hover:shadow-xl transition-all"
-            >
-              <FaEnvelope size={20} />
-              <span>Email Us</span>
-            </motion.a>
-
-            <motion.a
-              whileHover={{ y: -5, scale: 1.05 }}
-              href="https://github.com/collabcode"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-center gap-3 bg-white text-blue-900 px-6 py-4 rounded-xl shadow-lg hover:shadow-xl transition-all"
-            >
-              <FaGithub size={20} />
-              <span>GitHub</span>
-            </motion.a>
-
-            <motion.a
-              whileHover={{ y: -5, scale: 1.05 }}
-              href="https://twitter.com/collabcode"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-center gap-3 bg-white text-blue-900 px-6 py-4 rounded-xl shadow-lg hover:shadow-xl transition-all"
-            >
-              <FaTwitter size={20} />
-              <span>Twitter</span>
-            </motion.a>
-
-            <motion.a
-              whileHover={{ y: -5, scale: 1.05 }}
-              href="https://discord.gg/collabcode"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-center gap-3 bg-white text-blue-900 px-6 py-4 rounded-xl shadow-lg hover:shadow-xl transition-all"
-            >
-              <FaDiscord size={20} />
-              <span>Discord Community</span>
-            </motion.a>
-          </div>
-        </div>
-      </section>
-
-      {/* Newsletter Section */}
-      <section className="py-16 bg-white">
-        <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto bg-gradient-to-r from-blue-50 to-blue-100 rounded-2xl p-8 md:p-12 shadow-lg">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8 }}
-              className="text-center mb-8"
-            >
-              <h2 className="text-2xl md:text-3xl font-bold mb-4 text-blue-900">
-                Stay Updated
-              </h2>
-              <p className="text-blue-700">
-                Subscribe to our newsletter for the latest updates, tips, and early access to new features.
-              </p>
-            </motion.div>
-
-            <form className="flex flex-col md:flex-row gap-4">
-              <input
-                type="email"
-                placeholder="Your email address"
-                className="flex-1 px-4 py-3 rounded-lg border border-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              />
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                type="submit"
-                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
-              >
-                Subscribe
-              </motion.button>
-            </form>
-            <p className="text-sm text-blue-600 mt-4 text-center">
-              We respect your privacy. Unsubscribe at any time.
-            </p>
-          </div>
-        </div>
-      </section>
-
       <Footer />
     </div>
   );

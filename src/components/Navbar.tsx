@@ -6,6 +6,7 @@ import Image from "next/image";
 import { FaUser, FaCode} from "react-icons/fa";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
+import Link from "next/link";
 
 export default function Navbar() {
   const { data: session } = useSession();
@@ -35,13 +36,12 @@ export default function Navbar() {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5 }}
             >
-              <button 
-                onClick={() => router.push('/dashboard')}
+              <Link 
+                href="/dashboard"
                 className="flex items-center gap-2 text-xl font-bold bg-gradient-to-r from-white to-blue-400 bg-clip-text text-transparent hover:from-blue-400 hover:to-white transition-all duration-300"
               >
-                <FaCode className="text-blue-500" />
-                Collab
-              </button>
+                <Image src="/favicon.svg" alt="Collab" width={64} height={32} />
+              </Link>
             </motion.div>
           </div>
           
@@ -52,36 +52,38 @@ export default function Navbar() {
             transition={{ duration: 0.5 }}
           >
             {session?.user?.image ? (
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => router.push('/profile')}
-                className="flex items-center space-x-3 bg-blue-950/30 px-4 py-2 rounded-full border border-white/10 hover:border-blue-500/50 hover:bg-blue-900/20 transition-all duration-300"
-              >
-                <span className="text-sm font-medium text-blue-200">
-                  {session.user.name}
-                </span>
-                <div className="relative h-8 w-8 rounded-full overflow-hidden ring-2 ring-blue-500/50">
-                  <Image
-                    src={session?.user?.image || ''}
-                    alt="Profile"
-                    fill
-                    className="object-cover"
-                    sizes="32px"
-                    priority
-                  />
-                </div>
-              </motion.button>
+              <Link href="/profile">
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="flex items-center space-x-3 bg-blue-950/30 px-4 py-2 rounded-full border border-white/10 hover:border-blue-500/50 hover:bg-blue-900/20 transition-all duration-300 cursor-pointer"
+                >
+                  <span className="text-sm font-medium text-blue-200">
+                    {session.user.name}
+                  </span>
+                  <div className="relative h-8 w-8 rounded-full overflow-hidden ring-2 ring-blue-500/50">
+                    <Image
+                      src={session?.user?.image || ''}
+                      alt="Profile"
+                      fill
+                      className="object-cover"
+                      sizes="32px"
+                      priority
+                    />
+                  </div>
+                </motion.div>
+              </Link>
             ) : (
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => router.push('/profile')}
-                className="flex items-center space-x-2 bg-blue-950/30 px-4 py-2 rounded-full border border-white/10 hover:border-blue-500/50 hover:bg-blue-900/20 transition-all duration-300"
-              >
-                <FaUser className="h-5 w-5 text-blue-400" />
-                <span className="text-sm font-medium text-blue-200">Profile</span>
-              </motion.button>
+              <Link href="/profile">
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="flex items-center space-x-2 bg-blue-950/30 px-4 py-2 rounded-full border border-white/10 hover:border-blue-500/50 hover:bg-blue-900/20 transition-all duration-300 cursor-pointer"
+                >
+                  <FaUser className="h-5 w-5 text-blue-400" />
+                  <span className="text-sm font-medium text-blue-200">Profile</span>
+                </motion.div>
+              </Link>
             )}
           </motion.div>
         </div>

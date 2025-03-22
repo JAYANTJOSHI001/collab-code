@@ -68,10 +68,10 @@ export default function Profile() {
     return (
       <>
         <Navbar />
-        <div className="flex items-center justify-center min-h-[calc(100vh-4rem)]">
+        <div className="flex items-center justify-center min-h-[calc(100vh-4rem)] bg-gradient-to-br from-black to-blue-950">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-zinc-900 mx-auto"></div>
-            <p className="mt-4 text-zinc-600">Loading profile...</p>
+            <div className="w-16 h-16 border-t-2 border-b-2 border-blue-500 rounded-full animate-spin mx-auto"></div>
+            <p className="mt-6 text-blue-200">Loading profile...</p>
           </div>
         </div>
       </>
@@ -82,10 +82,10 @@ export default function Profile() {
     return (
       <>
         <Navbar />
-        <div className="flex items-center justify-center min-h-[calc(100vh-4rem)]">
+        <div className="flex items-center justify-center min-h-[calc(100vh-4rem)] bg-gradient-to-b from-black to-blue-950">
           <div className="text-center">
-            <div className="text-red-500 mb-4">⚠️</div>
-            <p className="text-zinc-600">{error}</p>
+            <div className="text-red-500 mb-4 text-4xl">⚠️</div>
+            <p className="text-blue-200">{error}</p>
           </div>
         </div>
       </>
@@ -93,60 +93,66 @@ export default function Profile() {
   }
 
   return (
-    <div className="bg-black text-white">
+    <div className="min-h-screen bg-gradient-to-b from-black to-blue-950 text-white">
       <Navbar />
       <div className="container mx-auto px-4 py-8">
         <button
           onClick={() => router.back()}
-          className="mb-6 flex items-center text-zinc-600 hover:text-zinc-900 transition-colors"
+          className="mb-6 flex items-center text-blue-300 hover:text-blue-100 transition-colors"
         >
           <FaArrowLeft className="mr-2" />
           Back to Dashboard
         </button>
-        <div className="max-w-7xl mx-auto border-2 border-white rounded-lg shadow-lg overflow-hidden">
-          <div className="md:flex-col md:items-left">
-            <div className="md:flex gap-6 p-6">
+        
+        <div className="max-w-4xl mx-auto bg-blue-950/30 backdrop-blur-xl border border-white/10 rounded-xl shadow-lg overflow-hidden">
+          <div className="p-8">
+            <div className="md:flex items-center gap-8 mb-8">
               {profile?.avatarUrl && (
-                <div className="relative h-48 w-48 mx-auto">
+                <div className="relative h-32 w-32 mx-auto md:mx-0 mb-6 md:mb-0">
                   <Image
                     src={profile.avatarUrl}
                     alt={profile.name || profile.username}
                     fill
-                    className="rounded-full object-cover"
+                    className="rounded-full object-cover border-2 border-blue-500/50"
                   />
                 </div>
               )}
-              <div className="flex flex-col items-left justify-center">
-                <h1 className="text-3xl font-bold">{profile?.name}</h1>
-                <span className="text-zinc-400">@{profile?.username}</span>
-                <p className="text-zinc-400">{profile?.profile?.bio}</p>
+              <div>
+                <h1 className="text-3xl font-bold text-white">{profile?.name}</h1>
+                <span className="text-blue-300">@{profile?.username}</span>
+                {profile?.profile?.bio && (
+                  <p className="text-blue-200/70 mt-2">{profile.profile.bio}</p>
+                )}
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-6 p-6 rounded-lg">
-              <div className="flex flex-col items-left justify-center bg-white p-4 rounded-lg">
-                <span className="text-black">Rooms</span>
-                <p className="text-black font-semibold">{profile?.rooms?.length || "0"}</p>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="bg-blue-900/20 border border-blue-500/20 p-4 rounded-lg">
+                <span className="text-blue-300 text-sm">Rooms</span>
+                <p className="text-white font-semibold text-xl">{profile?.rooms?.length || "0"}</p>
               </div>
-              <div className="flex flex-col items-left justify-center bg-white p-4 rounded-lg">
-                <span className="text-black">Followers</span>
-                <p className="text-black font-semibold">{profile?.profile?.followers || "Not Available"}</p>
+              <div className="bg-blue-900/20 border border-blue-500/20 p-4 rounded-lg">
+                <span className="text-blue-300 text-sm">Followers</span>
+                <p className="text-white font-semibold text-xl">{profile?.profile?.followers || "0"}</p>
               </div>
-              <div className="flex flex-col items-left justify-center bg-white p-4 rounded-lg">
-                <span className="text-black">Following</span>
-                <p className="text-black font-semibold">{profile?.profile?.following || "Not Available"}</p>
+              <div className="bg-blue-900/20 border border-blue-500/20 p-4 rounded-lg">
+                <span className="text-blue-300 text-sm">Following</span>
+                <p className="text-white font-semibold text-xl">{profile?.profile?.following || "0"}</p>
               </div>
-              <div className="flex flex-col items-left justify-center bg-white p-4 rounded-lg">
-                <span className="text-black">Public Repos</span>
-                <p className="text-black font-semibold">{profile?.profile?.public_repos || "Not Available"}</p>
+              <div className="bg-blue-900/20 border border-blue-500/20 p-4 rounded-lg">
+                <span className="text-blue-300 text-sm">Public Repos</span>
+                <p className="text-white font-semibold text-xl">{profile?.profile?.public_repos || "0"}</p>
               </div>
-              <div className="flex flex-col items-left justify-center bg-white p-4 rounded-lg">
-                <span className="text-black">Location</span>
-                <p className="text-black font-semibold">{profile?.profile?.location || "Not Available"}</p>
-              </div>
+              {profile?.profile?.location && (
+                <div className="bg-blue-900/20 border border-blue-500/20 p-4 rounded-lg md:col-span-2">
+                  <span className="text-blue-300 text-sm">Location</span>
+                  <p className="text-white font-semibold text-xl">{profile.profile.location}</p>
+                </div>
+              )}
             </div>
           </div>
         </div>
       </div>
     </div>
   );
-} 
+}

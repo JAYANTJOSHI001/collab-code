@@ -53,12 +53,7 @@ const PublicNavbar = () => {
         <div className="flex items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2">
-            <motion.span 
-              className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-blue-400"
-              whileHover={{ scale: 1.05 }}
-            >
-              Collab
-            </motion.span>
+            <img src="/favicon.svg" alt="Collab" height={32} width={64} />
           </Link>
 
           {/* Desktop Navigation */}

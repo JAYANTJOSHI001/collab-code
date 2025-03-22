@@ -22,6 +22,7 @@ import {
 import { FaJava } from 'react-icons/fa';
 import { SiJavascript, SiPython, SiCplusplus, SiTypescript } from 'react-icons/si';
 import Footer from '@/components/ui/Footer';
+import { Coming_Soon } from 'next/font/google';
 
 export default function FeaturesPage() {
   const { data: session } = useSession();
@@ -74,7 +75,8 @@ export default function FeaturesPage() {
         { name: "Python", icon: <SiPython className="text-blue-500" size={24} /> },
         { name: "C++", icon: <SiCplusplus className="text-blue-700" size={24} /> },
         { name: "Java", icon: <FaJava className="text-red-500" size={24} /> },
-        { name: "TypeScript", icon: <SiTypescript className="text-blue-600" size={24} /> }
+        { name: "TypeScript", icon: <SiTypescript className="text-blue-600" size={24} /> },
+        { name: "Many More", icon: <FaCode className="text-gray-600" size={24} /> }
       ]
     },
     {
@@ -130,7 +132,8 @@ export default function FeaturesPage() {
         "Run JavaScript/Python code directly in the browser",
         "No need for external setup or installations",
         "Output displayed in a separate console panel"
-      ]
+      ],
+      comingSoon:"true",
     },
     {
       id: 8,
@@ -232,40 +235,40 @@ export default function FeaturesPage() {
                   <pre className="text-sm md:text-base font-mono overflow-x-auto">
                     <code className="language-typescript text-gray-300">
                       {`function CollaborativeEditor() {
-  const [code, setCode] = useState("");
-  const [users, setUsers] = useState([
-    { id: 1, name: "Sarah", color: "#4f46e5" },
-    { id: 2, name: "Mike", color: "#10b981" }
-  ]);
+                      const [code, setCode] = useState("");
+                      const [users, setUsers] = useState([
+                        { id: 1, name: "Sarah", color: "#4f46e5" },
+                        { id: 2, name: "Mike", color: "#10b981" }
+                      ]);
 
-  useEffect(() => {
-    socket.on("code-update", (newCode) => {
-      setCode(newCode);
-    });
-    
-    socket.on("user-joined", (user) => {
-      setUsers(prev => [...prev, user]);
-    });
-  }, []);
+                      useEffect(() => {
+                        socket.on("code-update", (newCode) => {
+                          setCode(newCode);
+                        });
+                        
+                        socket.on("user-joined", (user) => {
+                          setUsers(prev => [...prev, user]);
+                        });
+                      }, []);
 
-  // Handle code changes
-  const handleChange = (value) => {
-    setCode(value);
-    socket.emit("code-update", value);
-  };
+                      // Handle code changes
+                      const handleChange = (value) => {
+                        setCode(value);
+                        socket.emit("code-update", value);
+                      };
 
-  return (
-    <div className="collaborative-editor">
-      <UserPresence users={users} />
-      <MonacoEditor
-        value={code}
-        onChange={handleChange}
-        language="typescript"
-        theme="vs-dark"
-      />
-    </div>
-  );
-}`}
+                      return (
+                        <div className="collaborative-editor">
+                          <UserPresence users={users} />
+                          <MonacoEditor
+                            value={code}
+                            onChange={handleChange}
+                            language="typescript"
+                            theme="vs-dark"
+                          />
+                        </div>
+                      );
+                    }`}
                     </code>
                   </pre>
                   

@@ -35,12 +35,6 @@ export default function DocsPage() {
       description: "Learn the basics of Collab and start your first project"
     },
     {
-      id: "features",
-      title: "Features",
-      icon: <FaCode size={20} className="text-green-500" />,
-      description: "Detailed guides for all Collab features"
-    },
-    {
       id: "faq",
       title: "FAQ",
       icon: <FaQuestion size={20} className="text-purple-500" />,
@@ -59,22 +53,22 @@ export default function DocsPage() {
     {
       title: "Sign up with GitHub",
       description: "Click the 'Sign in with GitHub' button on the homepage. You'll be redirected to GitHub to authorize Collab.",
-      image: "/images/docs/signup.png" // Placeholder path
+      image: "/docs/signup.png" // Placeholder path
     },
     {
       title: "Create a new project",
       description: "From your dashboard, click 'New Project'. Give it a name and select a template or start from scratch.",
-      image: "/images/docs/create-project.png" // Placeholder path
+      image: "/docs/dashboard.png" // Placeholder path
     },
     {
       title: "Invite collaborators",
       description: "Open your project settings and click 'Invite'. Enter GitHub usernames or email addresses to invite team members.",
-      image: "/images/docs/invite.png" // Placeholder path
+      image: "/docs/share.png" // Placeholder path
     },
     {
       title: "Start coding together",
       description: "Open the editor and start coding! You'll see your collaborators' cursors in real-time as they work.",
-      image: "/images/docs/coding.png" // Placeholder path
+      image: "/docs/coding.png" // Placeholder path
     }
   ];
 
@@ -246,7 +240,7 @@ export default function DocsPage() {
       {/* Documentation Categories */}
       <section className="py-16 bg-white">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
             {docCategories.map((category, index) => (
               <motion.div
                 key={category.id}
@@ -277,9 +271,8 @@ export default function DocsPage() {
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
             <Tabs defaultValue="getting-started" className="w-full">
-              <TabsList className="grid w-full grid-cols-4 mb-12">
+              <TabsList className="grid w-full grid-cols-3 mb-12">
                 <TabsTrigger value="getting-started" className="text-sm md:text-base">Getting Started</TabsTrigger>
-                <TabsTrigger value="features" className="text-sm md:text-base">Features</TabsTrigger>
                 <TabsTrigger value="faq" className="text-sm md:text-base">FAQ</TabsTrigger>
                 <TabsTrigger value="troubleshooting" className="text-sm md:text-base">Troubleshooting</TabsTrigger>
               </TabsList>
@@ -327,50 +320,6 @@ export default function DocsPage() {
                   </div>
                 </div>
               </TabsContent>
-
-              {/* Features Tab */}
-              <TabsContent value="features" id="features">
-                <div className="bg-white rounded-xl p-8 shadow-md">
-                  <h2 className="text-3xl font-bold mb-6 text-blue-900">Feature Guides</h2>
-                  <p className="text-gray-600 mb-8">
-                    Explore detailed guides for each feature to make the most of Collab.
-                  </p>
-
-                  <div className="grid grid-cols-1 gap-8">
-                    {featureGuides.map((feature) => (
-                      <motion.div
-                        key={feature.id}
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.5 }}
-                        className="border border-gray-100 rounded-xl p-6 hover:shadow-lg transition-all"
-                      >
-                        <div className="flex items-start gap-4">
-                          <div className="w-12 h-12 rounded-lg bg-gray-50 flex items-center justify-center flex-shrink-0">
-                            {feature.icon}
-                          </div>
-                          <div className="flex-1">
-                            <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
-                            <p className="text-gray-600 mb-4">{feature.content}</p>
-                            <div className="space-y-2">
-                              {feature.steps.map((step, index) => (
-                                <div key={index} className="flex items-start gap-2">
-                                  <div className="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-sm flex-shrink-0">
-                                    {index + 1}
-                                  </div>
-                                  <p className="text-gray-700">{step}</p>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        </div>
-                      </motion.div>
-                    ))}
-                  </div>
-                </div>
-              </TabsContent>
-
               {/* FAQ Tab */}
               <TabsContent value="faq" id="faq">
                 <div className="bg-white rounded-xl p-8 shadow-md">

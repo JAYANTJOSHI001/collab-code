@@ -15,7 +15,7 @@ interface VoiceChatProps {
 }
 
 export const VoiceChat: React.FC<VoiceChatProps> = ({ socket, roomId, userId, users }) => {
-  console.log('[VoiceChat] Initializing component with:', { roomId, userId, usersCount: users.length });
+  // console.log('[VoiceChat] Initializing component with:', { roomId, userId, usersCount: users.length });
   
   const { toast } = useToast();
   const {
@@ -31,13 +31,13 @@ export const VoiceChat: React.FC<VoiceChatProps> = ({ socket, roomId, userId, us
     setNoiseSuppression
   } = useWebRTC({ socket, roomId, userId });
   
-  console.log('[VoiceChat] WebRTC state:', { 
-    isMicActive, 
-    isSpeaking, 
-    speakingUsersCount: speakingUsers.length,
-    permissionDenied, 
-    isSupported 
-  });
+  // console.log('[VoiceChat] WebRTC state:', { 
+  //   isMicActive, 
+  //   isSpeaking, 
+  //   speakingUsersCount: speakingUsers.length,
+  //   permissionDenied, 
+  //   isSupported 
+  // });
   
   // Default connection quality as fallback
   const connectionQuality = 'good';
@@ -53,12 +53,12 @@ export const VoiceChat: React.FC<VoiceChatProps> = ({ socket, roomId, userId, us
     
     const result = isSpeakingFromHook || isLocalSpeaking;
     if (result) {
-      console.log('[VoiceChat] User speaking detected:', { 
-        userIdToCheck, 
-        isCurrentUser, 
-        isSpeakingFromHook, 
-        isLocalSpeaking 
-      });
+      // console.log('[VoiceChat] User speaking detected:', { 
+      //   userIdToCheck, 
+      //   isCurrentUser, 
+      //   isSpeakingFromHook, 
+      //   isLocalSpeaking 
+      // });
     }
     return result;
   };
@@ -67,41 +67,41 @@ export const VoiceChat: React.FC<VoiceChatProps> = ({ socket, roomId, userId, us
   React.useEffect(() => {
     if (isSupported && socket?.connected) {
       // Log connection status for debugging
-      console.log('[VoiceChat] WebRTC initialized, socket connected:', socket.connected);
+      // console.log('[VoiceChat] WebRTC initialized, socket connected:', socket.connected);
       
       // Listen for connection events
       socket.on('webrtc-connection-status', (status) => {
-        console.log('[VoiceChat] WebRTC connection status:', status);
+        // console.log('[VoiceChat] WebRTC connection status:', status);
       });
 
       // Add debug listeners for WebRTC events
       socket.on('webrtc-signal', (data) => {
-        console.log('[VoiceChat] WebRTC signal received:', data.type);
+        // console.log('[VoiceChat] WebRTC signal received:', data.type);
       });
 
       socket.on('webrtc-user-connected', (userId) => {
-        console.log('[VoiceChat] WebRTC user connected:', userId);
+        // console.log('[VoiceChat] WebRTC user connected:', userId);
       });
 
       socket.on('webrtc-user-disconnected', (userId) => {
-        console.log('[VoiceChat] WebRTC user disconnected:', userId);
+        // console.log('[VoiceChat] WebRTC user disconnected:', userId);
       });
 
       // Debug audio stream
       navigator.mediaDevices.getUserMedia({ audio: true })
         .then(stream => {
-          console.log('[VoiceChat] Audio stream obtained successfully');
+          // console.log('[VoiceChat] Audio stream obtained successfully');
           
           // Check audio tracks
           const audioTracks = stream.getAudioTracks();
-          console.log('[VoiceChat] Audio tracks:', audioTracks.length);
+          // console.log('[VoiceChat] Audio tracks:', audioTracks.length);
           audioTracks.forEach((track, i) => {
-            console.log(`[VoiceChat] Track ${i}:`, {
-              label: track.label,
-              enabled: track.enabled,
-              muted: track.muted,
-              readyState: track.readyState
-            });
+            // console.log(`[VoiceChat] Track ${i}:`, {
+            //   label: track.label,
+            //   enabled: track.enabled,
+            //   muted: track.muted,
+            //   readyState: track.readyState
+            // });
           });
           
           // Create audio context to check audio levels
@@ -131,18 +131,18 @@ export const VoiceChat: React.FC<VoiceChatProps> = ({ socket, roomId, userId, us
                   track.enabled = false;
                   track.stop();
                 });
-                console.log('[VoiceChat] Audio tracks stopped');
+                // console.log('[VoiceChat] Audio tracks stopped');
               }
             };
             
             // Listen for mic toggle events
             window.addEventListener('mic-toggle', (event: any) => {
               if (!event.detail.active) {
-                console.log('[VoiceChat] Mic toggled off, stopping audio analyzer');
+                // console.log('[VoiceChat] Mic toggled off, stopping audio analyzer');
                 isAnalyzerActive = false;
                 stopAudioTracks();
               } else {
-                console.log('[VoiceChat] Mic toggled on, restarting audio analyzer');
+                // console.log('[VoiceChat] Mic toggled on, restarting audio analyzer');
                 isAnalyzerActive = true;
               }
             });
@@ -191,7 +191,7 @@ export const VoiceChat: React.FC<VoiceChatProps> = ({ socket, roomId, userId, us
                   }));
                 } else if (average > 10 && isMicActive) {
                   // Still log lower levels but don't trigger speaking
-                  console.log('[VoiceChat] Low audio detected, level:', average);
+                  // console.log('[VoiceChat] Low audio detected, level:', average);
                   
                   // Dispatch event with inactive speaking but with the detected level
                   window.dispatchEvent(new CustomEvent('audio-activity', { 
@@ -211,7 +211,7 @@ export const VoiceChat: React.FC<VoiceChatProps> = ({ socket, roomId, userId, us
             };
             
             checkAudioLevel();
-            console.log('[VoiceChat] Audio analyzer set up successfully');
+            // console.log('[VoiceChat] Audio analyzer set up successfully');
           } catch (err) {
             console.error('[VoiceChat] Error setting up audio analyzer:', err);
           }
@@ -227,7 +227,7 @@ export const VoiceChat: React.FC<VoiceChatProps> = ({ socket, roomId, userId, us
         socket.off('webrtc-signal');
         socket.off('webrtc-user-connected');
         socket.off('webrtc-user-disconnected');
-        console.log('[VoiceChat] Cleaned up WebRTC listeners');
+        // console.log('[VoiceChat] Cleaned up WebRTC listeners');
       }
       
       // Clean up event listeners
@@ -246,20 +246,20 @@ export const VoiceChat: React.FC<VoiceChatProps> = ({ socket, roomId, userId, us
   React.useEffect(() => {
     if (isSupported && socket?.connected && !isMicActive && toggleMicrophone) {
       // Initialize microphone on component mount
-      console.log('[VoiceChat] Initializing microphone');
+      // console.log('[VoiceChat] Initializing microphone');
       setTimeout(() => {
-        console.log('[VoiceChat] Activating microphone after delay');
+        // console.log('[VoiceChat] Activating microphone after delay');
         toggleMicrophone();
         
         // Debug socket connection after mic activation
         setTimeout(() => {
           if (socket?.connected) {
-            console.log('[VoiceChat] Socket still connected after mic activation');
+            // console.log('[VoiceChat] Socket still connected after mic activation');
             
             // Test socket communication
             socket.emit('ping-test', { userId });
             socket.on('pong-test', (data) => {
-              console.log('[VoiceChat] Received pong from server:', data);
+              // console.log('[VoiceChat] Received pong from server:', data);
             });
           } else {
             console.error('[VoiceChat] Socket disconnected after mic activation');
@@ -272,7 +272,7 @@ export const VoiceChat: React.FC<VoiceChatProps> = ({ socket, roomId, userId, us
   // Show error if WebRTC is not supported
   React.useEffect(() => {
     if (!isSupported) {
-      console.error('[VoiceChat] WebRTC not supported in this browser');
+      // console.error('[VoiceChat] WebRTC not supported in this browser');
       toast({
         title: "Voice Chat Unavailable",
         description: "Your browser doesn't support WebRTC. Try using Chrome, Firefox, or Edge.",
@@ -284,7 +284,7 @@ export const VoiceChat: React.FC<VoiceChatProps> = ({ socket, roomId, userId, us
   // Show error if microphone permission is denied
   React.useEffect(() => {
     if (permissionDenied) {
-      console.error('[VoiceChat] Microphone permission denied by user');
+      // console.error('[VoiceChat] Microphone permission denied by user');
       toast({
         title: "Microphone Access Denied",
         description: "Please allow microphone access to use voice chat.",
@@ -315,25 +315,25 @@ export const VoiceChat: React.FC<VoiceChatProps> = ({ socket, roomId, userId, us
         <div className="flex items-center gap-2">
           <MicrophoneSettings 
             onDeviceChange={(deviceId) => {
-              console.log('[VoiceChat] Audio device changed:', deviceId);
+              // console.log('[VoiceChat] Audio device changed:', deviceId);
               setAudioDevice(deviceId);
             }}
             onVolumeChange={(volume) => {
-              console.log('[VoiceChat] Audio volume changed:', volume);
+              // console.log('[VoiceChat] Audio volume changed:', volume);
               setAudioVolume(volume);
             }}
             onEchoChange={(enabled) => {
-              console.log('[VoiceChat] Echo cancellation changed:', enabled);
+              // console.log('[VoiceChat] Echo cancellation changed:', enabled);
               setEchoCancellation(enabled);
             }}
             onNoiseChange={(enabled) => {
-              console.log('[VoiceChat] Noise suppression changed:', enabled);
+              // console.log('[VoiceChat] Noise suppression changed:', enabled);
               setNoiseSuppression(enabled);
             }}
           />
           <button
             onClick={() => {
-              console.log('[VoiceChat] Toggling microphone, current state:', isMicActive);
+              // console.log('[VoiceChat] Toggling microphone, current state:', isMicActive);
               
               // Force update audio activity state when turning mic off
               if (isMicActive) {
@@ -347,7 +347,7 @@ export const VoiceChat: React.FC<VoiceChatProps> = ({ socket, roomId, userId, us
                   detail: { active: false }
                 }));
                 
-                console.log('[VoiceChat] Explicitly setting audio level to 0 before mic off');
+                // console.log('[VoiceChat] Explicitly setting audio level to 0 before mic off');
                 
                 // Then toggle the microphone
                 toggleMicrophone();

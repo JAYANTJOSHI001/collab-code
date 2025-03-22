@@ -14,7 +14,7 @@ export function Side({ onCommitClick, isCommitView, onGitClick, isGitView }: Sid
   const router = useRouter();
 
   return (
-    <div className="w-14 bg-zinc-800 border-zinc-700 flex flex-col items-center py-4">
+    <div className="w-14 bg-black border-zinc-700 flex flex-col items-center py-4">
       <ul className="space-y-8">
         <li>
           <button

@@ -70,30 +70,30 @@ export default function Room({ params }: { params: Promise<RoomParams> }) {
 
   // Function to handle file content response from socket server
   const handleFileContentResponse = ({ file, content }: { file: string; content: string }) => {
-    console.log('[Room] Received file content response:', {
-      file,
-      contentLength: content.length,
-      isSelectedFile: isSameFile(file, selectedFile)
-    });
+    // console.log('[Room] Received file content response:', {
+    //   file,
+    //   contentLength: content.length,
+    //   isSelectedFile: isSameFile(file, selectedFile)
+    // });
 
     // Update files state with new content
     setFiles((prev) => {
       const fileExists = prev.some(f => isSameFile(f.path, file));
       if (!fileExists) {
-        console.log('[Room] Adding new file to state:', file);
+        // console.log('[Room] Adding new file to state:', file);
         return [...prev, { path: file, content }];
       }
       
       const updatedFiles = prev.map((f) => 
         isSameFile(f.path, file) ? { ...f, content } : f
       );
-      console.log('[Room] Updated file content in state:', file);
+      // console.log('[Room] Updated file content in state:', file);
       return updatedFiles;
     });
 
     // Update editor if this is the selected file
     if (isSameFile(file, selectedFile)) {
-      console.log('[Room] Updating editor with new content');
+      // console.log('[Room] Updating editor with new content');
       setFileContent(content);
       
       if (editorRef.current) {
@@ -101,7 +101,7 @@ export default function Room({ params }: { params: Promise<RoomParams> }) {
         const currentValue = editor.getValue();
         
         if (currentValue !== content) {
-          console.log('[Room] Updating editor value');
+          // console.log('[Room] Updating editor value');
           // Store cursor position
           const position = editor.getPosition();
           editor.setValue(content);
@@ -109,12 +109,12 @@ export default function Room({ params }: { params: Promise<RoomParams> }) {
           if (position) {
             editor.setPosition(position);
           }
-          console.log('[Room] Editor content updated successfully');
+          // console.log('[Room] Editor content updated successfully');
         } else {
-          console.log('ℹ️ [Room] Editor content already matches received content');
+          // console.log('ℹ️ [Room] Editor content already matches received content');
         }
       } else {
-        console.log('[Room] Editor ref not available for content update');
+        // console.log('[Room] Editor ref not available for content update');
       }
     }
   };
@@ -128,28 +128,28 @@ export default function Room({ params }: { params: Promise<RoomParams> }) {
       email: session?.user?.email
     },
     onCodeUpdate: ({ file, content }) => {
-      console.log('[Room] Received code update:', { 
-        file,
-        contentLength: content.length,
-        isSelectedFile: isSameFile(file, selectedFile),
-        hasContent: !!content
-      });
+      // console.log('[Room] Received code update:', { 
+      //   file,
+      //   contentLength: content.length,
+      //   isSelectedFile: isSameFile(file, selectedFile),
+      //   hasContent: !!content
+      // });
       
       // Update files state first
       setFiles((prev) => {
         const updatedFiles = prev.map((f) => 
           isSameFile(f.path, file) ? { ...f, content } : f
         );
-        console.log('[Room] Files state updated:', {
-          totalFiles: updatedFiles.length,
-          updatedFile: file
-        });
+        // // console.log('[Room] Files state updated:', {
+        //   totalFiles: updatedFiles.length,
+        //   updatedFile: file
+        // });
         return updatedFiles;
       });
       
       // Update editor content if this is the selected file
       if (isSameFile(file, selectedFile)) {
-        console.log('[Room] Updating editor content for selected file');
+        // console.log('[Room] Updating editor content for selected file');
         setFileContent(content);
         if (editorRef.current) {
           const editor = editorRef.current;
@@ -178,48 +178,48 @@ export default function Room({ params }: { params: Promise<RoomParams> }) {
       }
     },
     onUserJoined: ({ users }) => {
-      console.log('[Room] Users updated:', {
-        totalUsers: users.length,
-        users: users.map(u => ({ id: u.id, name: u.name }))
-      });
+      // console.log('[Room] Users updated:', {
+      //   totalUsers: users.length,
+      //   users: users.map(u => ({ id: u.id, name: u.name }))
+      // });
       setUsers(users);
     },
     onUserLeft: ({ users }) => {
-      console.log('[Room] Users updated after user left:', {
-        totalUsers: users.length,
-        users: users.map(u => ({ id: u.id, name: u.name }))
-      });
+      // console.log('[Room] Users updated after user left:', {
+      //   totalUsers: users.length,
+      //   users: users.map(u => ({ id: u.id, name: u.name }))
+      // });
       setUsers(users);
     },
     onRoomState: (state) => {
-      console.log('[Room] Room state received:', {
-        users: state.users.length,
-        files: state.files.length,
-        hasSelectedFile: !!selectedFile
-      });
+      // console.log('[Room] Room state received:', {
+      //   users: state.users.length,
+      //   files: state.files.length,
+      //   hasSelectedFile: !!selectedFile
+      // });
       setUsers(state.users);
       setFiles(state.files);
       if (state.files.length > 0 && !selectedFile) {
-        console.log('[Room] Setting initial file:', state.files[0].path);
+        // console.log('[Room] Setting initial file:', state.files[0].path);
         setSelectedFile(state.files[0].path);
         setFileContent(state.files[0].content);
       }
     },
     onFileChange: ({ file, content }) => {
-      console.log('[Room] File content updated:', {
-        file,
-        content,
-        contentLength: content.length
-      });
+      // console.log('[Room] File content updated:', {
+      //   file,
+      //   content,
+      //   contentLength: content.length
+      // });
       setFiles((prev) =>
         prev.map((f) => (f.path === file ? { ...f, content } : f))
       );
     },
     onFileListUpdate: (files) => {
-      console.log('[Room] File list updated:', {
-        totalFiles: files.length,
-        files: files.map(f => f.path)
-      });
+      // console.log('[Room] File list updated:', {
+      //   totalFiles: files.length,
+      //   files: files.map(f => f.path)
+      // });
       setFiles(files);
     },
     onFileContentResponse: handleFileContentResponse
@@ -228,7 +228,7 @@ export default function Room({ params }: { params: Promise<RoomParams> }) {
   // Request file list when component mounts
   useEffect(() => {
     if (isConnected) {
-      console.log('[Room] Socket connected, requesting file list');
+      // console.log('[Room] Socket connected, requesting file list');
       requestFileList();
     }
   }, [isConnected]);
@@ -243,7 +243,7 @@ export default function Room({ params }: { params: Promise<RoomParams> }) {
       // Fetch room data and initial files
       const fetchRoomData = async () => {
         try {
-          console.log('[Room] Fetching room data...');
+          // console.log('[Room] Fetching room data...');
           const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/room/${id}`, {
             headers: {
               Authorization: `Bearer ${session.accessToken}`,
@@ -254,10 +254,10 @@ export default function Room({ params }: { params: Promise<RoomParams> }) {
           
           if (response.ok) {
             const data = await response.json();
-            console.log('[Room] Room data fetched:', {
-              creator: data?.createdBy,
-              repo: data.repo
-            });
+            // console.log('[Room] Room data fetched:', {
+            //   creator: data?.createdBy,
+            //   repo: data.repo
+            // });
             setCreator(data?.createdBy || null);
             setRepoName(data.repo || null);
             
@@ -265,14 +265,14 @@ export default function Room({ params }: { params: Promise<RoomParams> }) {
             if (data?.createdBy && data.repo && session.accessToken && !hasInitializedRef.current) {
               await fetchInitialFiles(data.createdBy, data.repo, session.accessToken);
               hasInitializedRef.current = true;
-              console.log('[Room] Initial files fetched and initialized');
+              // console.log('[Room] Initial files fetched and initialized');
             } else {
-              console.log('ℹ️ [Room] Skipping file fetch:', {
-                hasCreator: !!data?.createdBy,
-                hasRepo: !!data.repo,
-                hasAccessToken: !!session.accessToken,
-                alreadyInitialized: hasInitializedRef.current
-              });
+              // console.log('ℹ️ [Room] Skipping file fetch:', {
+              //   hasCreator: !!data?.createdBy,
+              //   hasRepo: !!data.repo,
+              //   hasAccessToken: !!session.accessToken,
+              //   alreadyInitialized: hasInitializedRef.current
+              // });
             }
           } else if (response.status === 401) {
             toast({
@@ -301,7 +301,7 @@ export default function Room({ params }: { params: Promise<RoomParams> }) {
   // Function to fetch initial files from GitHub
   const fetchInitialFiles = async (creator: string, repoName: string, accessToken: string) => {
     try {
-      console.log('[Room] Fetching initial files from GitHub');
+      // console.log('[Room] Fetching initial files from GitHub');
       const response = await fetch(`https://api.github.com/repos/${creator}/${repoName}/contents`, {
         headers: {
           'Accept': 'application/vnd.github.v3+json',
@@ -316,28 +316,28 @@ export default function Room({ params }: { params: Promise<RoomParams> }) {
       const contents = await response.json();
       const files = await processDirectoryContents(creator, repoName, accessToken);
       
-      console.log('[Room] Initial files fetched:', {
-        totalFiles: files.length,
-        files: files.map(f => f.path)
-      });
+      // console.log('[Room] Initial files fetched:', {
+      //   totalFiles: files.length,
+      //   files: files.map(f => f.path)
+      // });
 
       // Update local state
       setFiles(files);
       
       // Send files to socket server to initialize its state
       if (socket?.connected) {
-        console.log('[Room] Sending initial files to socket server');
+        // console.log('[Room] Sending initial files to socket server');
         socket.emit('initializeFiles', {
           roomId: id,
           files: files
         });
       } else {
-        console.log('[Room] Socket not connected, will rely on room state sync');
+        // console.log('[Room] Socket not connected, will rely on room state sync');
       }
 
       // Set initial file if none selected
       if (files.length > 0 && !selectedFile) {
-        console.log('[Room] Setting initial file:', files[0].path);
+        // console.log('[Room] Setting initial file:', files[0].path);
         setSelectedFile(files[0].path);
         setFileContent(files[0].content);
       }
@@ -413,24 +413,24 @@ export default function Room({ params }: { params: Promise<RoomParams> }) {
         
         return results;
     } catch (error) {
-      console.error(`Error processing directory ${path}:`, error);
+      // console.error(`Error processing directory ${path}:`, error);
       return [];
     }
   };
 
   const handleEditorChange = (value: string | undefined) => {
     if (!selectedFile || !value) {
-      console.log('[Room] Editor change ignored:', { 
-        hasSelectedFile: !!selectedFile,
-        hasValue: !!value 
-      });
+      // console.log('[Room] Editor change ignored:', { 
+      //   hasSelectedFile: !!selectedFile,
+      //   hasValue: !!value 
+      // });
       return;
     }
 
-    console.log('[Room] Editor change:', {
-        file: selectedFile,
-      contentLength: value.length
-    });
+    // console.log('[Room] Editor change:', {
+    //     file: selectedFile,
+    //   contentLength: value.length
+    // });
 
     // Update local state first
     setFileContent(value);
@@ -438,17 +438,17 @@ export default function Room({ params }: { params: Promise<RoomParams> }) {
       const updatedFiles = prev.map((f) => 
         f.path === selectedFile ? { ...f, content: value } : f
       );
-      console.log('[Room] Local files state updated');
+      // console.log('[Room] Local files state updated');
       return updatedFiles;
     });
 
     // Emit change to other users
-    console.log('[Room] Emitting code change to other users');
+    // console.log('[Room] Emitting code change to other users');
     emitCodeChange(selectedFile, value);
 
     // Track changes for commit
     if (!changes.includes(selectedFile)) {
-      console.log('[Room] Adding file to changes:', selectedFile);
+      // console.log('[Room] Adding file to changes:', selectedFile);
       setChanges((prev) => [...prev, selectedFile]);
     }
 
@@ -458,17 +458,17 @@ export default function Room({ params }: { params: Promise<RoomParams> }) {
 
   // Update handleFileSelect to use case-insensitive comparison
   const handleFileSelect = async (file: { path: string; content: string }) => {
-    console.log('[Room] File selected:', {
-      user: session?.user?.email,
-      path: file.path,
-      providedContent: !!file.content,
-      contentLength: file.content?.length
-    });
+    // console.log('[Room] File selected:', {
+    //   user: session?.user?.email,
+    //   path: file.path,
+    //   providedContent: !!file.content,
+    //   contentLength: file.content?.length
+    // });
     
     try {
       // Always request fresh content from socket server when selecting a file
       if (!socket?.connected) {
-        console.log('[Room] Socket not connected, cannot fetch file content');
+        // console.log('[Room] Socket not connected, cannot fetch file content');
         toast({
           title: "Connection Error",
           description: "Not connected to server. Please try again.",
@@ -483,18 +483,18 @@ export default function Room({ params }: { params: Promise<RoomParams> }) {
       // Use existing content temporarily while waiting for fresh content
       const localFile = files.find(f => isSameFile(f.path, file.path));
       if (localFile?.content) {
-        console.log('[Room] Using temporary local content while fetching update:', {
-          path: file.path,
-          contentLength: localFile.content.length
-        });
+        // console.log('[Room] Using temporary local content while fetching update:', {
+        //   path: file.path,
+        //   contentLength: localFile.content.length
+        // });
         setFileContent(localFile.content);
       } else {
-        console.log('[Room] No local content available, clearing editor while fetching');
+        // console.log('[Room] No local content available, clearing editor while fetching');
         setFileContent('');
       }
 
       // Request fresh content from socket server
-      console.log('[Room] Requesting fresh file content from socket server');
+      // console.log('[Room] Requesting fresh file content from socket server');
       socket.emit('requestFileContent', {
         roomId: id,
         filePath: file.path
@@ -507,7 +507,7 @@ export default function Room({ params }: { params: Promise<RoomParams> }) {
       });
 
     } catch (error) {
-      console.error('[Room] Error selecting file:', error);
+      // console.error('[Room] Error selecting file:', error);
       toast({
         title: "Error",
         description: "Failed to load file content",
@@ -522,23 +522,23 @@ export default function Room({ params }: { params: Promise<RoomParams> }) {
       // Use the isSameFile function for case-insensitive file path comparison
       const filesToSend = filesToCommit.map(path => {
         const fileContent = files.find(f => isSameFile(f.path, path));
-        console.log(`[Room] File to commit: ${path}, Found content:`, {
-          found: !!fileContent,
-          contentLength: fileContent?.content?.length || 0
-        });
+        // console.log(`[Room] File to commit: ${path}, Found content:`, {
+        //   found: !!fileContent,
+        //   contentLength: fileContent?.content?.length || 0
+        // });
         return {
           path,
           content: fileContent?.content || "",
         };
       });
   
-      console.log("[Room] Committing changes:", {
-        message,
-        filesToSend: filesToSend.map((f) => ({ 
-          path: f.path, 
-          contentLength: f.content.length 
-        })),
-      });
+      // console.log("[Room] Committing changes:", {
+      //   message,
+      //   filesToSend: filesToSend.map((f) => ({ 
+      //     path: f.path, 
+      //     contentLength: f.content.length 
+      //   })),
+      // });
   
       // Check if any file content is empty
       const emptyFiles = filesToSend.filter(file => !file.content);
@@ -546,10 +546,10 @@ export default function Room({ params }: { params: Promise<RoomParams> }) {
         console.warn("[Room] The following files have empty content and will not be committed:", emptyFiles);
         
         // Add more detailed logging to help debug
-        console.log("[Room] Current files in state:", files.map(f => ({
-          path: f.path,
-          contentLength: f.content?.length || 0
-        })));
+        // // console.log("[Room] Current files in state:", files.map(f => ({
+        //   path: f.path,
+        //   contentLength: f.content?.length || 0
+        // })));
         
         // Show a toast to the user
         toast({
@@ -574,7 +574,7 @@ export default function Room({ params }: { params: Promise<RoomParams> }) {
       });
   
       const responseData = await response.json();
-      console.log("[Room] Response from commit API:", responseData);
+      // console.log("[Room] Response from commit API:", responseData);
   
       if (!response.ok) {
         throw new Error(`Error: ${response.statusText}`);
@@ -642,7 +642,7 @@ export default function Room({ params }: { params: Promise<RoomParams> }) {
                           files.some(f => f.path === `${folderPath}/.gitkeep`);
       
       if (folderPath !== '' && !folderExists) {
-        console.log('[Room] Creating parent folder first:', folderPath);
+        // console.log('[Room] Creating parent folder first:', folderPath);
         // Create the folder first
         await handleAddFolder(folderPath);
       }
@@ -657,12 +657,12 @@ export default function Room({ params }: { params: Promise<RoomParams> }) {
         return;
       }
 
-      console.log('[Room] Creating new file:', {
-        path: filePath,
-        repoName,
-        creator,
-        roomId: id
-      });
+      // console.log('[Room] Creating new file:', {
+      //   path: filePath,
+      //   repoName,
+      //   creator,
+      //   roomId: id
+      // });
 
       // Create file locally for immediate feedback
       const newFile = { path: filePath, content: "" };
@@ -728,12 +728,12 @@ export default function Room({ params }: { params: Promise<RoomParams> }) {
         return;
       }
 
-      console.log('[Room] Creating new folder:', {
-        path: folderPath,
-        repoName,
-        creator,
-        roomId: id
-      });
+      // console.log('[Room] Creating new folder:', {
+      //   path: folderPath,
+      //   repoName,
+      //   creator,
+      //   roomId: id
+      // });
 
       // Create folder locally first by adding a .gitkeep file
       const newFile = { path: `${folderPath}/.gitkeep`, content: "" };

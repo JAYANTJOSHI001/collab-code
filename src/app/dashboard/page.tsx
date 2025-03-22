@@ -8,6 +8,8 @@ import { FaCodeBranch, FaSpinner } from "react-icons/fa";
 import { useToast } from "@/hooks/use-toast";
 import Navbar from "@/components/Navbar";
 import { motion } from "framer-motion";
+// Remove this import as it's not needed in client components
+// import { Metadata } from 'next'
 
 interface Repository {
   id: number;
@@ -18,6 +20,9 @@ interface Repository {
   url: string;
   defaultBranch: string;
 }
+
+// Remove the metadata export as it's not compatible with client components
+// export const metadata: Metadata = { ... }
 
 export default function Dashboard() {
   const { data: session, status } = useSession();
