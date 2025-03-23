@@ -4,7 +4,6 @@ import { signIn } from "next-auth/react";
 import { useState } from "react";
 import { FaGithub } from "react-icons/fa";
 import { motion } from "framer-motion";
-import Image from 'next/image';
 
 export default function LoginPage() {
   const [loading, setLoading] = useState(false);
@@ -26,7 +25,7 @@ export default function LoginPage() {
       >
         <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-transparent to-transparent" />
         <div className="h-full relative z-10">
-          <Image src="/illustration.svg" alt="Logo" className="w-full h-full object-contain" />
+          <img src="/illustration.svg" alt="Logo" className="w-full h-full object-contain" />
         </div>
       </motion.div>
 
