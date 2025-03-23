@@ -2,12 +2,11 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import Link from 'next/link';
 import PublicNavbar from '@/components/ui/PublicNavbar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { FaGithub, FaTwitter, FaLinkedin, FaDiscord, FaEnvelope } from 'react-icons/fa';
+import { FaGithub, FaDiscord, FaEnvelope } from 'react-icons/fa';
 import Footer from '@/components/ui/Footer';
 
 export default function ContactPage() {
@@ -51,30 +50,7 @@ export default function ContactPage() {
       link: "https://github.com/collab/issues"
     }
   ];
-
-  const socialLinks = [
-    {
-      name: "Twitter",
-      icon: <FaTwitter size={24} />,
-      link: "https://x.com/jayantjoshi_"
-    },
-    {
-      name: "LinkedIn",
-      icon: <FaLinkedin size={24} />,
-      link: "https://linkedin.com/company/collabcode"
-    },
-    {
-      name: "Discord",
-      icon: <FaDiscord size={24} />,
-      link: "https://discord.gg/collab"
-    },
-    {
-      name: "GitHub",
-      icon: <FaGithub size={24} />,
-      link: "https://github.com/collab"
-    }
-  ];
-
+  
   return (
     <div className="min-h-screen bg-white">
       <PublicNavbar />
@@ -92,7 +68,7 @@ export default function ContactPage() {
               Get in Touch with Us!
             </h1>
             <p className="text-xl text-blue-200 mb-12">
-              Have questions, feedback, or need help? We'd love to hear from you.
+              Have questions, feedback, or need help? We&apos;d love to hear from you.
             </p>
           </motion.div>
         </div>

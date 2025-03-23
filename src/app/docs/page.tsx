@@ -1,24 +1,13 @@
 "use client"
 
-import React, { useState } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
-import Link from 'next/link';
 import Image from 'next/image';
 import PublicNavbar from '@/components/ui/PublicNavbar';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { 
-  FaGithub, 
-  FaSearch, 
-  FaCode, 
-  FaProjectDiagram, 
-  FaHistory, 
-  FaTerminal, 
-  FaComments, 
   FaQuestion,
-  FaLaptopCode,
   FaBook,
   FaTools,
   FaExclamationTriangle
@@ -69,88 +58,6 @@ export default function DocsPage() {
       title: "Start coding together",
       description: "Open the editor and start coding! You'll see your collaborators' cursors in real-time as they work.",
       image: "/docs/coding.png" // Placeholder path
-    }
-  ];
-
-  // Feature guides
-  const featureGuides = [
-    {
-      id: "live-collaboration",
-      title: "Live Code Collaboration",
-      icon: <FaCode size={24} className="text-blue-500" />,
-      description: "Work with teammates on the same file in real-time",
-      content: "Collab's real-time collaboration allows multiple developers to work on the same file simultaneously. Changes appear instantly for all participants, with each user's cursor visible and color-coded.",
-      steps: [
-        "Open a project and navigate to a file",
-        "Share the project link with collaborators",
-        "See real-time updates as everyone types",
-        "Hover over a colored cursor to see who's editing"
-      ]
-    },
-    {
-      id: "project-management",
-      title: "Project Management",
-      icon: <FaProjectDiagram size={24} className="text-purple-500" />,
-      description: "Create, organize and manage your coding projects",
-      content: "Organize your work with powerful project management features. Create multiple projects, invite team members, and set custom permissions.",
-      steps: [
-        "Create projects from the dashboard",
-        "Organize files in folders",
-        "Set access permissions for team members",
-        "Track project activity and contributions"
-      ]
-    },
-    {
-      id: "editor-features",
-      title: "Editor Features",
-      icon: <FaLaptopCode size={24} className="text-indigo-500" />,
-      description: "Powerful code editing with syntax highlighting and more",
-      content: "Collab uses Monaco Editor (the same editor powering VS Code) to provide a professional coding experience with syntax highlighting, auto-completion, and more.",
-      steps: [
-        "Choose from light or dark themes",
-        "Adjust font size and editor settings",
-        "Use keyboard shortcuts for efficiency",
-        "Enable language-specific features"
-      ]
-    },
-    {
-      id: "version-control",
-      title: "Version Control",
-      icon: <FaHistory size={24} className="text-amber-500" />,
-      description: "Track changes and restore previous versions",
-      content: "Never lose your work with built-in version control. Track changes, view previous versions, and restore code as needed.",
-      steps: [
-        "View the history of any file",
-        "Compare changes between versions",
-        "Restore code to a previous state",
-        "See who made specific changes"
-      ]
-    },
-    {
-      id: "github-integration",
-      title: "GitHub Integration",
-      icon: <FaGithub size={24} className="text-gray-800" />,
-      description: "Seamlessly connect with your GitHub repositories",
-      content: "Import existing GitHub repositories or export your Collab projects to GitHub with just a few clicks.",
-      steps: [
-        "Connect your GitHub account",
-        "Import repositories to Collab",
-        "Push changes back to GitHub",
-        "Manage repository settings"
-      ]
-    },
-    {
-      id: "code-execution",
-      title: "Running Code in Browser",
-      icon: <FaTerminal size={24} className="text-red-500" />,
-      description: "Execute code directly in your browser",
-      content: "Run your code directly in the browser without any setup. See results instantly in a dedicated console panel.",
-      steps: [
-        "Select a supported language (JavaScript, Python)",
-        "Write your code in the editor",
-        "Click 'Run' to execute",
-        "View output in the console panel"
-      ]
     }
   ];
 

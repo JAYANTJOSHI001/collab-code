@@ -22,7 +22,6 @@ import {
 import { FaJava } from 'react-icons/fa';
 import { SiJavascript, SiPython, SiCplusplus, SiTypescript } from 'react-icons/si';
 import Footer from '@/components/ui/Footer';
-import { Coming_Soon } from 'next/font/google';
 
 export default function FeaturesPage() {
   const { data: session } = useSession();
@@ -509,7 +508,7 @@ export default function FeaturesPage() {
                 whileHover={{ y: -5 }}
                 className="bg-white p-8 rounded-2xl relative shadow-lg hover:shadow-xl transition-all"
               >
-                <div className="text-5xl text-blue-200 absolute top-4 left-4">"</div>
+                <div className="text-5xl text-blue-200 absolute top-4 left-4">&quot;</div>
                 <p className="text-neutral-700 mb-6 relative z-10">{testimonial.text}</p>
                 <div className="flex items-center">
                   <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-blue-700 rounded-full flex items-center justify-center text-white font-bold">

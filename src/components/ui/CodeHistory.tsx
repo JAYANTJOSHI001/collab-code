@@ -29,7 +29,7 @@ export function CodeHistory({ versions, onRestoreVersion, onClose }: CodeHistory
         {versions.length === 0 ? (
           <div className="text-zinc-500 text-center py-4">No history available</div>
         ) : (
-          versions.map((version, index) => (
+          versions.map((version) => (
             <div
               key={version.timestamp.toISOString()}
               className="mb-4 p-3 bg-zinc-800 rounded-lg hover:bg-zinc-700 transition-colors"

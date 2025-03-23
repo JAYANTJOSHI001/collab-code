@@ -102,51 +102,6 @@ export const useWebRTC = ({ socket, roomId, userId }: WebRTCOptions) => {
     }
   }, [socket, userId]);
 
-  // Initialize WebRTC
-  const initializeWebRTC = useCallback(async () => {
-    try {
-      if (!isSupported) return;
-      
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
-      localStreamRef.current = stream;
-      
-      // Set up audio analysis for speaking detection
-      audioContextRef.current = new AudioContext();
-      analyserRef.current = audioContextRef.current.createAnalyser();
-      const source = audioContextRef.current.createMediaStreamSource(stream);
-      source.connect(analyserRef.current);
-      
-      // Initially mute the microphone
-      stream.getAudioTracks().forEach(track => {
-        track.enabled = false;
-      });
-      
-      // Start speaking detection
-      startSpeakingDetection();
-      
-      setIsMicActive(false);
-      setPermissionDenied(false);
-    } catch (error) {
-      console.error('[WebRTC] Error initializing WebRTC:', error);
-      setPermissionDenied(true);
-    }
-  }, [isSupported]);
-
-  // Toggle microphone
-  const toggleMicrophone = useCallback(() => {
-    if (!localStreamRef.current) {
-      initializeWebRTC();
-      return;
-    }
-    
-    const newState = !isMicActive;
-    localStreamRef.current.getAudioTracks().forEach(track => {
-      track.enabled = newState;
-    });
-    
-    setIsMicActive(newState);
-  }, [isMicActive, initializeWebRTC]);
-
   // Start speaking detection
   const startSpeakingDetection = useCallback(() => {
     if (!analyserRef.current || speakingDetectionIntervalRef.current) return;
@@ -189,9 +144,58 @@ export const useWebRTC = ({ socket, roomId, userId }: WebRTCOptions) => {
     };
   }, [isMicActive, isSpeaking, roomId, socket, userId]);
 
+
+  // Initialize WebRTC
+  const initializeWebRTC = useCallback(async () => {
+    try {
+      if (!isSupported) return;
+      
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+      localStreamRef.current = stream;
+      
+      // Set up audio analysis for speaking detection
+      audioContextRef.current = new AudioContext();
+      analyserRef.current = audioContextRef.current.createAnalyser();
+      const source = audioContextRef.current.createMediaStreamSource(stream);
+      source.connect(analyserRef.current);
+      
+      // Initially mute the microphone
+      stream.getAudioTracks().forEach(track => {
+        track.enabled = false;
+      });
+      
+      // Start speaking detection
+      startSpeakingDetection();
+      
+      setIsMicActive(false);
+      setPermissionDenied(false);
+    } catch (error) {
+      console.error('[WebRTC] Error initializing WebRTC:', error);
+      setPermissionDenied(true);
+    }
+  }, [isSupported, startSpeakingDetection]); // Added startSpeakingDetection as dependency
+
+  // Toggle microphone
+  const toggleMicrophone = useCallback(() => {
+    if (!localStreamRef.current) {
+      initializeWebRTC();
+      return;
+    }
+    
+    const newState = !isMicActive;
+    localStreamRef.current.getAudioTracks().forEach(track => {
+      track.enabled = newState;
+    });
+    
+    setIsMicActive(newState);
+  }, [isMicActive, initializeWebRTC]); // Removed startSpeakingDetection from deps to fix circular dependency
+  
   // Handle WebRTC signaling
-  useEffect(() => {
+   useEffect(() => {
     if (!socket || !isSupported) return;
+    
+    // Store a reference to the current peer connections map for cleanup
+    const currentPeerConnections = peerConnectionsRef.current;
     
     // Handle current users in the room
     const handleCurrentUsers = (users: Array<{ id: string, socketId: string }>) => {
@@ -323,11 +327,19 @@ export const useWebRTC = ({ socket, roomId, userId }: WebRTCOptions) => {
       socket.off('user-speaking', handleUserSpeaking);
       socket.off('user-left', handleUserLeft);
       
+      // Use the stored reference instead of accessing the ref directly
+      const peerConnections = new Map(currentPeerConnections);
+      
       // Close all peer connections
-      peerConnectionsRef.current.forEach(peer => {
+      peerConnections.forEach(peer => {
         peer.connection.close();
       });
-      peerConnectionsRef.current.clear();
+      
+      // Clear the map - only if it hasn't been replaced
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      if (peerConnectionsRef.current === currentPeerConnections) {
+        currentPeerConnections.clear();
+      }
       
       // Stop local stream
       if (localStreamRef.current) {
@@ -367,8 +379,54 @@ export const useWebRTC = ({ socket, roomId, userId }: WebRTCOptions) => {
     };
   }, [isSupported, initializeWebRTC]);
   
-  // Inside your useWebRTC hook, add this state
+  // Inside your useWebRTC hook, add this state and a function to update it
   const [connectionQuality, setConnectionQuality] = useState<'excellent' | 'good' | 'fair' | 'poor' | 'disconnected'>('good');
+  
+  // Add a function to monitor connection quality (simplified example)
+  const monitorConnectionQuality = useCallback(() => {
+    if (!socket?.connected) {
+      setConnectionQuality('disconnected');
+      return;
+    }
+    
+    // Capture the current ref value to avoid the React hooks warning
+    const currentPeerConnections = peerConnectionsRef.current;
+    
+    // Check peer connections for stats
+    currentPeerConnections.forEach(peer => {
+      peer.connection.getStats().then(stats => {
+        // This is a simplified example - in a real app you'd analyze RTT, packet loss, etc.
+        let hasIssues = false;
+        stats.forEach(report => {
+          if (report.type === 'remote-inbound-rtp' && report.packetsLost > 5) {
+            hasIssues = true;
+          }
+        });
+        
+        if (hasIssues) {
+          setConnectionQuality('poor');
+        } else {
+          setConnectionQuality('good');
+        }
+      }).catch(err => {
+        console.error('Error getting connection stats:', err);
+      });
+    });
+  }, [socket?.connected]);
+  
+  // Use the monitor function in an effect
+  useEffect(() => {
+    if (!isSupported || !socket?.connected) return;
+    
+    // Remove this line since it's not used
+    // const currentPeerConnectionsRef = peerConnectionsRef.current;
+    
+    const interval = setInterval(monitorConnectionQuality, 5000);
+    
+    return () => {
+      clearInterval(interval);
+    };
+  }, [isSupported, socket?.connected, monitorConnectionQuality]);
   
   // Make sure to include it in the return object
   return {

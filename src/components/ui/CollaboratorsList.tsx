@@ -7,7 +7,7 @@ interface CollaboratorsListProps {
   currentFile?: string | null;
 }
 
-export function CollaboratorsList({ users = [], currentFile }: CollaboratorsListProps) {
+export function CollaboratorsList({ users = [] }: CollaboratorsListProps) {
   useEffect(() => {
     console.log("Active users:", users);
   }, [users]);

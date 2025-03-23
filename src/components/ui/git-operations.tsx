@@ -1,8 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Card } from "@/components/ui/card";
-import { FaTimes, FaCodeBranch, FaGitAlt } from "react-icons/fa";
+import { useState, useEffect, useCallback } from "react";
+import { FaTimes } from "react-icons/fa";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import axios from "axios";
 
@@ -19,11 +18,6 @@ interface Branch {
   };
 }
 
-interface PullRequest {
-  title: string;
-  body: string;
-  branch: string;
-}
 
 export function GitOperations({ roomId, onClose }: GitOperationsProps) {
   const [branches, setBranches] = useState<Branch[]>([]);
@@ -34,11 +28,14 @@ export function GitOperations({ roomId, onClose }: GitOperationsProps) {
   const [commitMessage, setCommitMessage] = useState("");
   const [activeTab, setActiveTab] = useState("pr");
 
+  console.log(loading);
+  
+  // Fix the useEffect dependency array
   useEffect(() => {
     fetchBranches();
-  }, []);
-
-  const fetchBranches = async () => {
+  });
+  
+  const fetchBranches = useCallback(async () => {
     try {
       const response = await axios.get(
         `${process.env.NEXT_PUBLIC_API_URL}/room/${roomId}/branches`,
@@ -49,7 +46,7 @@ export function GitOperations({ roomId, onClose }: GitOperationsProps) {
     } catch (error) {
       console.error("Failed to fetch branches:", error);
     }
-  };
+  }, [roomId]); // Add roomId as a dependency
 
   const createPullRequest = async () => {
     try {

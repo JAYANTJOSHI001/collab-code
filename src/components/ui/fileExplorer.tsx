@@ -46,7 +46,6 @@ interface DragItem {
 }
 
 const FileExplorer = ({ 
-  repoName, 
   files, 
   handleFileSelect, 
   handleAddFile, 

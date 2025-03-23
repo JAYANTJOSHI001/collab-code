@@ -71,20 +71,20 @@ export const VoiceChat: React.FC<VoiceChatProps> = ({ socket, roomId, userId, us
       
       // Listen for connection events
       socket.on('webrtc-connection-status', (status) => {
-        // console.log('[VoiceChat] WebRTC connection status:', status);
+        console.log('[VoiceChat] WebRTC connection status:', status);
       });
 
       // Add debug listeners for WebRTC events
       socket.on('webrtc-signal', (data) => {
-        // console.log('[VoiceChat] WebRTC signal received:', data.type);
+        console.log('[VoiceChat] WebRTC signal received:', data.type);
       });
 
       socket.on('webrtc-user-connected', (userId) => {
-        // console.log('[VoiceChat] WebRTC user connected:', userId);
+        console.log('[VoiceChat] WebRTC user connected:', userId);
       });
 
       socket.on('webrtc-user-disconnected', (userId) => {
-        // console.log('[VoiceChat] WebRTC user disconnected:', userId);
+        console.log('[VoiceChat] WebRTC user disconnected:', userId);
       });
 
       // Debug audio stream
@@ -96,17 +96,21 @@ export const VoiceChat: React.FC<VoiceChatProps> = ({ socket, roomId, userId, us
           const audioTracks = stream.getAudioTracks();
           // console.log('[VoiceChat] Audio tracks:', audioTracks.length);
           audioTracks.forEach((track, i) => {
-            // console.log(`[VoiceChat] Track ${i}:`, {
-            //   label: track.label,
-            //   enabled: track.enabled,
-            //   muted: track.muted,
-            //   readyState: track.readyState
-            // });
+            console.log(`[VoiceChat] Track ${i}:`, {
+              label: track.label,
+              enabled: track.enabled,
+              muted: track.muted,
+              readyState: track.readyState
+            });
           });
           
           // Create audio context to check audio levels
           try {
-            const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+            // Define a proper type for WebKit audio context
+            type WebkitAudioContext = typeof AudioContext;
+            
+            const audioContext = new (window.AudioContext || 
+              (window as unknown as {webkitAudioContext: WebkitAudioContext}).webkitAudioContext)();
             const analyser = audioContext.createAnalyser();
             const microphone = audioContext.createMediaStreamSource(stream);
             microphone.connect(analyser);
@@ -115,13 +119,13 @@ export const VoiceChat: React.FC<VoiceChatProps> = ({ socket, roomId, userId, us
             const bufferLength = analyser.frequencyBinCount;
             const dataArray = new Uint8Array(bufferLength);
             
-            // Create a custom event to notify the WebRTC hook about audio activity
-            const audioActivityEvent = new CustomEvent('audio-activity', { 
-              detail: { active: false, level: 0 } 
-            });
+            // Remove unused variable
+            // const audioActivityEvent = new CustomEvent('audio-activity', { 
+            //   detail: { active: false, level: 0 } 
+            // });
             
             // Store the audio stream reference to be able to stop it
-            let audioStreamRef = stream;
+            const audioStreamRef = stream; // Changed to const since it's never reassigned
             let isAnalyzerActive = true;
             
             // Function to stop all audio tracks
@@ -135,9 +139,10 @@ export const VoiceChat: React.FC<VoiceChatProps> = ({ socket, roomId, userId, us
               }
             };
             
-            // Listen for mic toggle events
-            window.addEventListener('mic-toggle', (event: any) => {
-              if (!event.detail.active) {
+            // Listen for mic toggle events - fix the any type
+            window.addEventListener('mic-toggle', ((event: Event) => {
+              const customEvent = event as CustomEvent<{active: boolean}>;
+              if (!customEvent.detail.active) {
                 // console.log('[VoiceChat] Mic toggled off, stopping audio analyzer');
                 isAnalyzerActive = false;
                 stopAudioTracks();
@@ -145,7 +150,7 @@ export const VoiceChat: React.FC<VoiceChatProps> = ({ socket, roomId, userId, us
                 // console.log('[VoiceChat] Mic toggled on, restarting audio analyzer');
                 isAnalyzerActive = true;
               }
-            });
+            }) as EventListener);
             
             const checkAudioLevel = () => {
               // Check mic state at each interval
@@ -230,8 +235,8 @@ export const VoiceChat: React.FC<VoiceChatProps> = ({ socket, roomId, userId, us
         // console.log('[VoiceChat] Cleaned up WebRTC listeners');
       }
       
-      // Clean up event listeners
-      window.removeEventListener('mic-toggle', (event: any) => {});
+      // Clean up event listeners - fix the unused parameter and any type
+      window.removeEventListener('mic-toggle', () => {});
       
       // Stop any active audio tracks
       if (typeof window !== 'undefined') {
@@ -258,7 +263,7 @@ export const VoiceChat: React.FC<VoiceChatProps> = ({ socket, roomId, userId, us
             
             // Test socket communication
             socket.emit('ping-test', { userId });
-            socket.on('pong-test', (data) => {
+            socket.on('pong-test', () => {
               // console.log('[VoiceChat] Received pong from server:', data);
             });
           } else {

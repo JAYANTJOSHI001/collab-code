@@ -3,7 +3,7 @@
 import React, { useEffect } from 'react';
 import { signIn, useSession } from 'next-auth/react';
 import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
-import { FaGithub, FaCode, FaUsers, FaPlay, FaHistory, FaComments, FaMoon, FaShare, FaQuestion } from 'react-icons/fa';
+import { FaGithub, FaCode, FaUsers, FaPlay, FaHistory, FaComments, FaMoon, FaShare} from 'react-icons/fa';
 import { useRouter } from "next/navigation";
 import PublicNavbar from '@/components/ui/PublicNavbar';
 import Footer from '@/components/ui/Footer';
@@ -101,7 +101,7 @@ const faqs = [
 ];
 
 export default function Home() {
-  const { data: session, status } = useSession();
+  const { data: status } = useSession();
   const router = useRouter();
   const { scrollYProgress } = useScroll();
   const scaleProgress = useSpring(scrollYProgress, { stiffness: 100, damping: 30 });
@@ -121,7 +121,7 @@ export default function Home() {
   };
 
   useEffect(() => {
-    if (status === "authenticated") {
+    if (status) {
       router.push("/dashboard");
     }
   }, [status, router]);
@@ -410,7 +410,7 @@ export default function Home() {
                 whileHover={{ y: -5 }}
                 className="bg-white p-8 rounded-2xl relative shadow-lg hover:shadow-xl transition-all"
               >
-                <div className="text-5xl text-blue-200 absolute top-4 left-4">"</div>
+                <div className="text-5xl text-blue-200 absolute top-4 left-4">&quot;</div>
                 <p className="text-neutral-700 mb-6 relative z-10">{testimonial.text}</p>
                 <div className="flex items-center">
                   <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-blue-700 rounded-full flex items-center justify-center text-white font-bold">

@@ -1,5 +1,13 @@
 import React, { useEffect, useState, useRef } from 'react';
 
+// Define a custom event interface for audio activity
+interface AudioActivityEvent extends Event {
+  detail: {
+    active: boolean;
+    level: number;
+  };
+}
+
 interface AudioVisualizerProps {
   isActive: boolean;
   isSpeaking: boolean;
@@ -15,7 +23,7 @@ export const AudioVisualizer: React.FC<AudioVisualizerProps> = ({
   
   // Listen for audio activity events
   useEffect(() => {
-    const handleAudioActivity = (event: CustomEvent) => {
+    const handleAudioActivity = (event: AudioActivityEvent) => {
       if (isActive && event.detail.active) {
         setAudioLevel(Math.min(100, event.detail.level * 2)); // Scale up for better visualization
       } else {
@@ -23,10 +31,10 @@ export const AudioVisualizer: React.FC<AudioVisualizerProps> = ({
       }
     };
     
-    window.addEventListener('audio-activity' as any, handleAudioActivity as any);
+    window.addEventListener('audio-activity', handleAudioActivity as EventListener);
     
     return () => {
-      window.removeEventListener('audio-activity' as any, handleAudioActivity as any);
+      window.removeEventListener('audio-activity', handleAudioActivity as EventListener);
     };
   }, [isActive]);
   

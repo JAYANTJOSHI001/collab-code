@@ -1,16 +1,15 @@
 "use client";
 
-import { useEffect } from "react";
+import React, { useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { FaExclamationTriangle } from "react-icons/fa";
 
-export default function ErrorPage() {
+function ErrorContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const error = searchParams.get("error");
+  const error = searchParams?.get("error");
 
   useEffect(() => {
-    // If no error is present, redirect to home
     if (!error) {
       router.push("/");
     }
@@ -56,4 +55,13 @@ export default function ErrorPage() {
       </div>
     </div>
   );
-} 
+}
+
+export default function ErrorPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ErrorContent />
+    </Suspense>
+  );
+}
+ 

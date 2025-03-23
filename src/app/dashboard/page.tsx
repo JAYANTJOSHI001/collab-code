@@ -1,16 +1,21 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react"; 
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
-import { FaCodeBranch, FaSpinner } from "react-icons/fa";
+import { FaCodeBranch } from "react-icons/fa";
 import { useToast } from "@/hooks/use-toast";
 import Navbar from "@/components/Navbar";
 import { motion } from "framer-motion";
-// Remove this import as it's not needed in client components
-// import { Metadata } from 'next'
 
+
+type ExtendedUser = {
+  name?: string | null;
+  email?: string | null;
+  image?: string | null;
+  login?: string | null; // Add login field
+};
 interface Repository {
   id: number;
   name: string;
@@ -21,8 +26,19 @@ interface Repository {
   defaultBranch: string;
 }
 
-// Remove the metadata export as it's not compatible with client components
-// export const metadata: Metadata = { ... }
+// Define a proper error interface
+interface ApiError extends Error {
+  response?: {
+    data?: unknown;
+    status?: number;
+    headers?: Record<string, string>;
+  };
+  config?: {
+    url?: string;
+    method?: string;
+    headers?: Record<string, string>;
+  };
+}
 
 export default function Dashboard() {
   const { data: session, status } = useSession();
@@ -30,21 +46,10 @@ export default function Dashboard() {
   const { toast } = useToast();
   const [repos, setRepos] = useState<Repository[]>([]);
   const [loading, setLoading] = useState(true);
-  const username = session?.user?.login;
+  const username = (session?.user as ExtendedUser)?.login ?? "Guest";
 
-  useEffect(() => {
-    if (status === "unauthenticated") {
-      router.push("/login");
-      return;
-    }
-
-    if (status === "authenticated" && session?.accessToken) {
-      fetchRepositories();
-    }
-  }, [status, session, router]);
-
-  // console.log("user:", session?.user);
-  const fetchRepositories = async () => {
+  // Use useCallback to memoize the fetchRepositories function
+  const fetchRepositories = useCallback(async () => {
     try {
       console.log("Fetching repositories for user:", username);
       console.log("Session state:", {
@@ -60,12 +65,13 @@ export default function Dashboard() {
       });
       console.log("Repository fetch successful, count:", response.data.length);
       setRepos(response.data);
-    } catch (error: any) {
-      console.error("Failed to fetch repositories - Full error:", error);
-      console.error("Error response data:", error.response?.data);
-      console.error("Error response status:", error.response?.status);
-      console.error("Error response headers:", error.response?.headers);
-      if (error.response?.status === 401) {
+    } catch (error) {
+      const apiError = error as ApiError;
+      console.error("Failed to fetch repositories - Full error:", apiError);
+      console.error("Error response data:", apiError.response?.data);
+      console.error("Error response status:", apiError.response?.status);
+      console.error("Error response headers:", apiError.response?.headers);
+      if (apiError.response?.status === 401) {
         toast({
           title: "Authentication Error",
           description: "Please sign in again to continue",
@@ -82,7 +88,18 @@ export default function Dashboard() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [username, session, toast, router, status]); // Added status to the dependency array
+
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/login");
+      return;
+    }
+
+    if (status === "authenticated" && session?.accessToken) {
+      fetchRepositories();
+    }
+  }, [status, session, router, fetchRepositories]);
 
   const startCollaboration = async (repo: Repository) => {
     try {
@@ -96,7 +113,7 @@ export default function Dashboard() {
       const requestData = {
         name: repo.name,
         repo: repo.name,
-        githubUsername: session?.user?.login,
+        githubUsername: (session?.user as ExtendedUser)?.login ?? "Guest",
       };
       console.log("Making room creation request with data:", requestData);
 
@@ -124,19 +141,20 @@ export default function Dashboard() {
       console.log("Room creation successful:", response.data);
 
       router.push(`/room/${response.data._id}`);
-    } catch (error: any) {
+    } catch (error) {
+      const apiError = error as ApiError;
       console.error("Failed to create room - Full error:", {
-        message: error.message,
-        status: error.response?.status,
-        data: error.response?.data,
-        headers: error.response?.headers,
+        message: apiError.message,
+        status: apiError.response?.status,
+        data: apiError.response?.data,
+        headers: apiError.response?.headers,
         config: {
-          url: error.config?.url,
-          method: error.config?.method,
-          headers: error.config?.headers
+          url: apiError.config?.url,
+          method: apiError.config?.method,
+          headers: apiError.config?.headers
         }
       });
-      if (error.response?.status === 401) {
+      if (apiError.response?.status === 401) {
         toast({
           title: "Authentication Error",
           description: "Please sign in again to continue",

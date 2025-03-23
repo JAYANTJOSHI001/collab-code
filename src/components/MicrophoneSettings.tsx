@@ -57,7 +57,7 @@ export const MicrophoneSettings: React.FC<MicrophoneSettingsProps> = ({
     return () => {
       navigator.mediaDevices.removeEventListener('devicechange', getDevices);
     };
-  }, []);
+  }, [onDeviceChange, selectedDevice]); // Added missing dependencies
   
   const handleDeviceChange = (value: string) => {
     setSelectedDevice(value);

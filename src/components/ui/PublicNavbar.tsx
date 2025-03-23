@@ -8,6 +8,7 @@ import { Menu, X } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
+import Image from "next/image";
 
 const PublicNavbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -53,7 +54,7 @@ const PublicNavbar = () => {
         <div className="flex items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2">
-            <img src="/favicon.svg" alt="Collab" height={32} width={64} />
+            <Image src="/favicon.svg" alt="Collab" height={32} width={64} />
           </Link>
 
           {/* Desktop Navigation */}

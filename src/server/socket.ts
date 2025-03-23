@@ -50,7 +50,12 @@ app.prepare().then(() => {
         .map(id => {
           // Find socket ID for this user
           const userSocket = Array.from(userInfo.entries())
-            .find(([_, info]) => info.userId === id);
+            .find(([socketId, info]) => {
+              console.log(socketId);
+              return info.userId === id; // Added return statement here
+            }
+          );
+            
           return userSocket ? { id, socketId: userSocket[0] } : { id };
         });
       

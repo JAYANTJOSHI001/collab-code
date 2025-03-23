@@ -13,7 +13,7 @@ interface UserProfile {
   username: string;
   name: string | null;
   email: string | null;
-  profile: object | null;
+  profile: Profile | null;
   avatarUrl: string;
   bio: string | null;
   company: string | null;
@@ -22,6 +22,15 @@ interface UserProfile {
   following: number;
   public_repos: number;
   created_at: string;
+  rooms: number;
+}
+
+interface Profile{
+  bio:string,
+  followers: number,
+  following: number,
+  location : string,
+  public_repos: number,
 }
 
 export default function Profile() {
@@ -53,8 +62,16 @@ export default function Profile() {
           },
         });
         setProfile(response.data);
-      } catch (error: any) {
-        setError(error.response?.data?.message || 'Failed to fetch profile');
+      } catch (error: unknown) {
+        // Use a type assertion with a more specific type
+        const axiosError = error as {
+          response?: {
+            data?: {
+              message?: string;
+            };
+          };
+        };
+        setError(axiosError.response?.data?.message || 'Failed to fetch profile');
         console.error('Error fetching profile:', error);
       } finally {
         setIsLoading(false);
@@ -129,7 +146,7 @@ export default function Profile() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="bg-blue-900/20 border border-blue-500/20 p-4 rounded-lg">
                 <span className="text-blue-300 text-sm">Rooms</span>
-                <p className="text-white font-semibold text-xl">{profile?.rooms?.length || "0"}</p>
+                <p className="text-white font-semibold text-xl">{profile?.rooms || "0"}</p>
               </div>
               <div className="bg-blue-900/20 border border-blue-500/20 p-4 rounded-lg">
                 <span className="text-blue-300 text-sm">Followers</span>

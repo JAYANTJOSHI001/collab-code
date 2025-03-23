@@ -1,16 +1,14 @@
 "use client";
 
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { FaUser, FaCode} from "react-icons/fa";
+import { FaUser} from "react-icons/fa";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 
 export default function Navbar() {
   const { data: session } = useSession();
-  const router = useRouter();
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {

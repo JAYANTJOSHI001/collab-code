@@ -10,7 +10,7 @@ interface User {
   currentFile?: string | null;
   isTyping?: boolean;
   lastTypingTime?: number;
-  editorStates?: Map<string, any>;
+  // editorStates?: Map<string, any>;
 }
 
 interface FileContent {
@@ -82,6 +82,9 @@ export function useSocket({
   const debounceTimers = useRef<Map<string, NodeJS.Timeout>>(new Map());
 
   useEffect(() => {
+    // Store a reference to the current debounce timers for cleanup
+    const currentDebounceTimers = debounceTimers.current;
+    
     try {
       // Initialize socket connection
       socketRef.current = io(process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:4000', {
@@ -97,12 +100,12 @@ export function useSocket({
 
       // Connection events
       socketRef.current.on('connect', () => {
-        console.log('🔌 [Socket] Connected to server');
+        console.log('[Socket] Connected to server');
         setIsConnected(true);
         
         // Join room after connection
         if (roomId) {
-          console.log('🚪 [Socket] Joining room:', roomId);
+          console.log('[Socket] Joining room:', roomId);
           socketRef.current?.emit('joinRoom', {
             roomId,
             user: {
@@ -120,13 +123,13 @@ export function useSocket({
       });
 
       socketRef.current.on('disconnect', () => {
-        console.log('❌ [Socket] Disconnected from server');
+        console.log('[Socket] Disconnected from server');
         setIsConnected(false);
       });
 
       // Room events
       socketRef.current.on('roomState', (state: RoomState) => {
-        console.log('📦 [Socket] Room state received:', { 
+        console.log('[Socket] Room state received:', { 
           users: state.users.length,
           files: state.files.length 
         });
@@ -137,7 +140,7 @@ export function useSocket({
       });
 
       socketRef.current.on('userJoined', (data) => {
-        console.log('👋 [Socket] User joined:', {
+        console.log('[Socket] User joined:', {
           userId: data.user?.id,
           name: data.user?.name || data.user?.email || 'Anonymous',
           totalUsers: data.users.length
@@ -152,7 +155,7 @@ export function useSocket({
       });
 
       socketRef.current.on('userLeft', (data) => {
-        console.log('👋 [Socket] User left:', {
+        console.log('[Socket] User left:', {
           userId: data.userId,
           totalUsers: data.users.length
         });
@@ -166,7 +169,7 @@ export function useSocket({
       });
 
       socketRef.current.on('codeUpdate', (data) => {
-        console.log('📝 [Socket] Code update received:', {
+        console.log('[Socket] Code update received:', {
           file: data.file,
           contentLength: data.content.length,
           userId: data.userId,
@@ -180,9 +183,9 @@ export function useSocket({
           onFileChange?.(data);
           
           // Log success
-          console.log('✅ [Socket] Code update processed successfully');
+          console.log('[Socket] Code update processed successfully');
         } else {
-          console.warn('⚠️ [Socket] Invalid code update data received:', data);
+          console.warn('[Socket] Invalid code update data received:', data);
         }
       });
 
@@ -197,7 +200,7 @@ export function useSocket({
       });
 
       socketRef.current.on('fileListUpdate', (files: FileContent[]) => {
-        console.log('📁 [Socket] File list updated:', {
+        console.log('[Socket] File list updated:', {
           totalFiles: files.length,
           files: files.map(f => f.path)
         });
@@ -205,7 +208,7 @@ export function useSocket({
       });
 
       socketRef.current.on('fileContentResponse', (data) => {
-        console.log('📥 [Socket] File content response received:', {
+        console.log('[Socket] File content response received:', {
           file: data.file,
           contentLength: data.content.length
         });
@@ -223,10 +226,19 @@ export function useSocket({
 
       // Cleanup on unmount
       return () => {
-        console.log('🧹 [Socket] Cleaning up socket connection');
-        // Clear all debounce timers
-        debounceTimers.current.forEach(timer => clearTimeout(timer));
-        debounceTimers.current.clear();
+        console.log('[Socket] Cleaning up socket connection');
+        
+        // Use the stored reference instead of accessing the ref directly
+        currentDebounceTimers.forEach(timer => clearTimeout(timer));
+        
+        // Only clear if it's still the same Map instance
+        if (debounceTimers.current === currentDebounceTimers) {
+          currentDebounceTimers.clear();
+        } else {
+          // If the ref has changed, clear the current one
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+          debounceTimers.current.clear();
+        }
         
         if (socketRef.current) {
           socketRef.current.disconnect();
@@ -240,7 +252,7 @@ export function useSocket({
         variant: 'destructive'
       });
     }
-  }, [roomId, user.id, user.name, user.email]);
+  }, [roomId, user.id, user.name, user.email, onCodeUpdate, onCursorUpdate, onFileChange, onFileContentResponse, onFileListUpdate, onRoomState, onSelectionUpdate, onUserJoined, onUserLeft, toast]);
 
   // Function to emit code changes with debouncing
   const emitCodeChange = (file: string, content: string) => {
@@ -307,4 +319,4 @@ export function useSocket({
     emitSelectionChange,
     requestFileList
   };
-} 
+}

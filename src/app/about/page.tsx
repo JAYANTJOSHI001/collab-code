@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { FaGithub, FaTwitter, FaLinkedin, FaDiscord, FaEnvelope, FaReact, FaCode, FaNodeJs, FaDatabase } from 'react-icons/fa';
+import { FaGithub, FaTwitter, FaLinkedin, FaReact, FaCode, FaNodeJs } from 'react-icons/fa';
 import { SiNextdotjs, SiTypescript, SiTailwindcss, SiPrisma, SiWebrtc } from 'react-icons/si';
 import PublicNavbar from '@/components/ui/PublicNavbar';
 import Footer from '@/components/ui/Footer';
@@ -74,11 +74,11 @@ export default function About() {
               
               <div className="prose prose-lg max-w-none">
                 <p className="text-xl mb-6">
-                  Collab is a real-time collaborative coding platform that brings the seamless experience of Google Docs to software development. We've built a space where developers can code together instantly, without the friction of traditional version control or the limitations of screen sharing.
+                  Collab is a real-time collaborative coding platform that brings the seamless experience of Google Docs to software development. We&apos;ve built a space where developers can code together instantly, without the friction of traditional version control or the limitations of screen sharing.
                 </p>
                 
                 <p className="text-xl mb-6">
-                  Our platform is designed for developers who believe that coding shouldn't be a solitary activity. Whether you're pair programming with a colleague, teaching a student, or contributing to an open-source project, Collab makes it easy to write, review, and execute code together in real-time.
+                  Our platform is designed for developers who believe that coding shouldn&apos;t be a solitary activity. Whether you&apos;re pair programming with a colleague, teaching a student, or contributing to an open-source project, Collab makes it easy to write, review, and execute code together in real-time.
                 </p>
               </div>
               
@@ -96,7 +96,7 @@ export default function About() {
                   className="bg-gray-50 p-6 rounded-xl shadow-md"
                 >
                   <h3 className="text-xl font-semibold mb-3">For Educators</h3>
-                  <p className="text-gray-600">Teach programming concepts interactively, seeing students' code as they type and providing real-time guidance.</p>
+                  <p className="text-gray-600">Teach programming concepts interactively, seeing students&apos; code as they type and providing real-time guidance.</p>
                 </motion.div>
                 
                 <motion.div 
@@ -142,7 +142,7 @@ export default function About() {
                 </p>
                 
                 <p className="text-xl mb-6">
-                  Beyond just real-time editing, we're building a platform that integrates the entire development workflow—from ideation to deployment—in a collaborative environment. Our roadmap includes features like integrated AI pair programming, advanced code analytics, and seamless integration with the broader development ecosystem.
+                  Beyond just real-time editing, we&apos;re building a platform that integrates the entire development workflow—from ideation to deployment—in a collaborative environment. Our roadmap includes features like integrated AI pair programming, advanced code analytics, and seamless integration with the broader development ecosystem.
                 </p>
                 
                 <p className="text-xl mb-6">

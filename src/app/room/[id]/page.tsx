@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState, use } from "react";
+import { useEffect, useRef, useState, use, useCallback} from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import Editor, { OnMount} from "@monaco-editor/react";
+import Editor, { OnMount } from "@monaco-editor/react";
+import * as monaco from 'monaco-editor'; // Add this import for Monaco types
 import { Side } from "@/components/ui/side";
 import CommitMenu from "@/components/ui/CommitMenu";
 import { GitOperations } from "@/components/ui/git-operations";
@@ -18,6 +19,7 @@ import { User } from "@/types/room";
 import { useSocket } from '@/hooks/useSocket';
 import { CodeHistory } from "@/components/ui/CodeHistory";
 import { formatDistanceToNow } from 'date-fns';
+
 
 interface FileContent {
   path: string;
@@ -34,6 +36,12 @@ interface CodeVersion {
   user?: string;
 }
 
+declare module "next-auth" {
+  interface Session {
+    accessToken?: string;
+  }
+}
+
 interface FileHistory {
   [path: string]: CodeVersion[];
 }
@@ -44,7 +52,7 @@ export default function Room({ params }: { params: Promise<RoomParams> }) {
   const { data: session, status } = useSession();
   const router = useRouter();
   const { toast } = useToast();
-  const editorRef = useRef<any>(null);
+  const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
   const [creator, setCreator] = useState<string | null>(null);
   const [users, setUsers] = useState<User[]>([]);
   const [files, setFiles] = useState<FileContent[]>([]);
@@ -124,8 +132,8 @@ export default function Room({ params }: { params: Promise<RoomParams> }) {
     roomId: id,
     user: {
       id: session?.user?.email || '',
-      name: session?.user?.name,
-      email: session?.user?.email
+      name: session?.user?.name || undefined,
+      email: session?.user?.email || undefined
     },
     onCodeUpdate: ({ file, content }) => {
       // console.log('[Room] Received code update:', { 
@@ -231,7 +239,131 @@ export default function Room({ params }: { params: Promise<RoomParams> }) {
       // console.log('[Room] Socket connected, requesting file list');
       requestFileList();
     }
-  }, [isConnected]);
+  }, [isConnected, requestFileList]);
+
+    // Function to process directory contents recursively - wrap in useCallback
+    const processDirectoryContents = useCallback(async (
+      creator: string,
+      repoName: string,
+      accessToken: string,
+      path: string = ''
+    ): Promise<FileContent[]> => {
+      try {
+        const response = await fetch(
+          `https://api.github.com/repos/${creator}/${repoName}/contents/${path}`,
+          {
+            headers: {
+              'Accept': 'application/vnd.github.v3+json',
+              Authorization: `Bearer ${accessToken}`
+            }
+          }
+        );
+  
+        if (!response.ok) {
+          throw new Error(`Failed to fetch contents for path: ${path}`);
+        }
+  
+        const contents = await response.json();
+        const results: FileContent[] = [];
+  
+        for (const item of Array.isArray(contents) ? contents : [contents]) {
+          if (item.type === 'file') {
+            try {
+              let content = '';
+              if (item.content) {
+                content = atob(item.content);
+              } else if (item.download_url) {
+                const contentResponse = await fetch(item.download_url);
+                if (contentResponse.ok) {
+                  content = await contentResponse.text();
+                }
+              }
+              
+              results.push({
+                path: item.path,
+                content
+              });
+            } catch (error) {
+              console.error(`Failed to process file ${item.path}:`, error);
+              results.push({
+                path: item.path,
+                content: ''
+              });
+            }
+          } else if (item.type === 'dir') {
+            // Recursive call to process subdirectory
+            const subContents = await processDirectoryContents(
+              creator,
+              repoName,
+              accessToken,
+              item.path
+            );
+            results.push(...subContents);
+          }
+        }
+        
+        return results;
+      } catch (error) {
+        console.error(`Error processing directory ${path}:`, error);
+        return [];
+      }
+    }, []);
+  
+    // Remove the duplicate fetchInitialFiles function here
+    // The one defined earlier will be used
+
+  // Function to fetch initial files from GitHub
+    // Function to fetch initial files from GitHub - wrap in useCallback
+    const fetchInitialFiles = useCallback(async (creator: string, repoName: string, accessToken: string) => {
+      try {
+        // console.log('[Room] Fetching initial files from GitHub');
+        const response = await fetch(`https://api.github.com/repos/${creator}/${repoName}/contents`, {
+          headers: {
+            'Accept': 'application/vnd.github.v3+json',
+            Authorization: `Bearer ${accessToken}`
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch repository contents');
+        }
+  
+        const files = await processDirectoryContents(creator, repoName, accessToken);
+        
+        // console.log('[Room] Initial files fetched:', {
+        //   totalFiles: files.length,
+        //   files: files.map(f => f.path)
+        // });
+  
+        // Update local state
+        setFiles(files);
+        
+        // Send files to socket server to initialize its state
+        if (socket?.connected) {
+          // console.log('[Room] Sending initial files to socket server');
+          socket.emit('initializeFiles', {
+            roomId: id,
+            files: files
+          });
+        } else {
+          // console.log('[Room] Socket not connected, will rely on room state sync');
+        }
+  
+        // Set initial file if none selected
+        if (files.length > 0 && !selectedFile) {
+          // console.log('[Room] Setting initial file:', files[0].path);
+          setSelectedFile(files[0].path);
+          setFileContent(files[0].content);
+        }
+      } catch (error) {
+        console.error('[Room] Error fetching initial files:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load repository files",
+          variant: "destructive"
+        });
+      }
+    }, [id, selectedFile, socket, toast, processDirectoryContents]);
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -246,7 +378,7 @@ export default function Room({ params }: { params: Promise<RoomParams> }) {
           // console.log('[Room] Fetching room data...');
           const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/room/${id}`, {
             headers: {
-              Authorization: `Bearer ${session.accessToken}`,
+              Authorization: `Bearer ${session?.accessToken}`,
               'Content-Type': 'application/json'
             },
             credentials: "include"
@@ -262,15 +394,14 @@ export default function Room({ params }: { params: Promise<RoomParams> }) {
             setRepoName(data.repo || null);
             
             // Fetch initial files from GitHub only if not already fetched
-            if (data?.createdBy && data.repo && session.accessToken && !hasInitializedRef.current) {
+            if (data?.createdBy && data.repo && session?.accessToken && !hasInitializedRef.current) {
               await fetchInitialFiles(data.createdBy, data.repo, session.accessToken);
               hasInitializedRef.current = true;
-              // console.log('[Room] Initial files fetched and initialized');
             } else {
               // console.log('ℹ️ [Room] Skipping file fetch:', {
               //   hasCreator: !!data?.createdBy,
               //   hasRepo: !!data.repo,
-              //   hasAccessToken: !!session.accessToken,
+              //   hasAccessToken: !!(session as any)?.accessToken,
               //   alreadyInitialized: hasInitializedRef.current
               // });
             }
@@ -296,134 +427,12 @@ export default function Room({ params }: { params: Promise<RoomParams> }) {
 
       fetchRoomData();
     }
-  }, [status, session, id]);
+  }, [status, session, id, router, toast, fetchInitialFiles]);
 
-  // Function to fetch initial files from GitHub
-  const fetchInitialFiles = async (creator: string, repoName: string, accessToken: string) => {
-    try {
-      // console.log('[Room] Fetching initial files from GitHub');
-      const response = await fetch(`https://api.github.com/repos/${creator}/${repoName}/contents`, {
-        headers: {
-          'Accept': 'application/vnd.github.v3+json',
-          Authorization: `Bearer ${accessToken}`
-        }
-      });
-      
-      if (!response.ok) {
-        throw new Error('Failed to fetch repository contents');
-      }
-
-      const contents = await response.json();
-      const files = await processDirectoryContents(creator, repoName, accessToken);
-      
-      // console.log('[Room] Initial files fetched:', {
-      //   totalFiles: files.length,
-      //   files: files.map(f => f.path)
-      // });
-
-      // Update local state
-      setFiles(files);
-      
-      // Send files to socket server to initialize its state
-      if (socket?.connected) {
-        // console.log('[Room] Sending initial files to socket server');
-        socket.emit('initializeFiles', {
-          roomId: id,
-          files: files
-        });
-      } else {
-        // console.log('[Room] Socket not connected, will rely on room state sync');
-      }
-
-      // Set initial file if none selected
-      if (files.length > 0 && !selectedFile) {
-        // console.log('[Room] Setting initial file:', files[0].path);
-        setSelectedFile(files[0].path);
-        setFileContent(files[0].content);
-      }
-    } catch (error) {
-      console.error('[Room] Error fetching initial files:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load repository files",
-        variant: "destructive"
-      });
-    }
-  };
-
-  // Function to process directory contents recursively
-  const processDirectoryContents = async (
-    creator: string,
-    repoName: string,
-    accessToken: string,
-    path: string = ''
-  ): Promise<FileContent[]> => {
-    try {
-      const response = await fetch(
-        `https://api.github.com/repos/${creator}/${repoName}/contents/${path}`,
-        {
-          headers: {
-            'Accept': 'application/vnd.github.v3+json',
-            Authorization: `Bearer ${accessToken}`
-          }
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(`Failed to fetch contents for path: ${path}`);
-      }
-
-      const contents = await response.json();
-      const results: FileContent[] = [];
-
-      for (const item of Array.isArray(contents) ? contents : [contents]) {
-          if (item.type === 'file') {
-            try {
-              let content = '';
-              if (item.content) {
-                content = atob(item.content);
-              } else if (item.download_url) {
-                const contentResponse = await fetch(item.download_url);
-                if (contentResponse.ok) {
-                  content = await contentResponse.text();
-                }
-              }
-              
-              results.push({
-                path: item.path,
-                content
-              });
-            } catch (error) {
-            console.error(`Failed to process file ${item.path}:`, error);
-              results.push({
-                path: item.path,
-                content: ''
-              });
-            }
-          } else if (item.type === 'dir') {
-          const subContents = await processDirectoryContents(
-            creator,
-            repoName,
-            accessToken,
-            item.path
-          );
-          results.push(...subContents);
-          }
-        }
-        
-        return results;
-    } catch (error) {
-      // console.error(`Error processing directory ${path}:`, error);
-      return [];
-    }
-  };
-
-  const handleEditorChange = (value: string | undefined) => {
+  const handleEditorChange = (value: string | undefined, _event: monaco.editor.IModelContentChangedEvent | undefined) => {
     if (!selectedFile || !value) {
-      // console.log('[Room] Editor change ignored:', { 
-      //   hasSelectedFile: !!selectedFile,
-      //   hasValue: !!value 
-      // });
+      // console.log('[Room] Skipping editor change: No selected file or value');
+      console.log("event:", _event);
       return;
     }
 
@@ -507,7 +516,7 @@ export default function Room({ params }: { params: Promise<RoomParams> }) {
       });
 
     } catch (error) {
-      // console.error('[Room] Error selecting file:', error);
+      console.error('[Room] Error selecting file:', error);
       toast({
         title: "Error",
         description: "Failed to load file content",
@@ -569,12 +578,9 @@ export default function Room({ params }: { params: Promise<RoomParams> }) {
         credentials: "include",
         body: JSON.stringify({
           message,
-          files: filesToSend.filter(file => file.content), // Only send files with content
+          files: filesToSend.filter(file => file.content),// Only send files with content
         }),
       });
-  
-      const responseData = await response.json();
-      // console.log("[Room] Response from commit API:", responseData);
   
       if (!response.ok) {
         throw new Error(`Error: ${response.statusText}`);
@@ -772,7 +778,7 @@ export default function Room({ params }: { params: Promise<RoomParams> }) {
 
   // Function to store editor instance
   const handleEditorDidMount: OnMount = (editor, monaco) => {
-    console.log('[Room] Editor mounted successfully');
+    console.log('[Room] Editor mounted successfully', monaco);
     editorRef.current = editor;
   };
 
@@ -808,7 +814,7 @@ export default function Room({ params }: { params: Promise<RoomParams> }) {
     };
   }, [isConnected, socket, selectedFile, id]);
 
-  const saveToHistory = (filePath: string, content: string) => {
+  const saveToHistory = useCallback((filePath: string, content: string) => {
     if (!filePath || !content) return;
 
     setLastSaved(new Date());
@@ -833,13 +839,12 @@ export default function Room({ params }: { params: Promise<RoomParams> }) {
         user: session?.user?.email || undefined
       };
 
-      // Add new version and limit to 50 unique versions
       return {
         ...prev,
         [filePath]: [newVersion, ...fileVersions].slice(0, 50)
       };
     });
-  };
+  }, [session?.user?.email]);
 
   const handleRestoreVersion = (content: string) => {
     if (!selectedFile) return;
@@ -879,7 +884,7 @@ export default function Room({ params }: { params: Promise<RoomParams> }) {
         clearInterval(autoSaveIntervalRef.current);
       }
     };
-  }, [isConnected, socket, selectedFile]);
+  }, [isConnected, socket, selectedFile, saveToHistory]);
 
   return (
     <div className="flex flex-col h-screen overflow-hidden">
@@ -932,7 +937,7 @@ export default function Room({ params }: { params: Promise<RoomParams> }) {
                 <VoiceChat 
                   socket={socket} 
                   roomId={id} 
-                  userId={session?.user?.id || 'anonymous'} 
+                  userId={session?.user?.email || 'anonymous'}
                   users={users.map(user => ({
                     id: user.id,
                     name: user.name || user.id.substring(0, 6),
