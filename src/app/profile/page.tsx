@@ -53,7 +53,10 @@ export default function Profile() {
 
   useEffect(() => {
     const fetchProfile = async () => {
-      if (!session?.accessToken) return;
+      if (!session?.accessToken){
+        console.error('Access token is missing');
+        return; 
+      }
 
       try {
         const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/user/me`, {
@@ -61,6 +64,7 @@ export default function Profile() {
             Authorization: `Bearer ${session.accessToken}`,
           },
         });
+        console.log("profile:", response.data);
         setProfile(response.data);
       } catch (error: unknown) {
         // Use a type assertion with a more specific type
@@ -71,6 +75,7 @@ export default function Profile() {
             };
           };
         };
+        console.log("axiosError",axiosError);
         setError(axiosError.response?.data?.message || 'Failed to fetch profile');
         console.error('Error fetching profile:', error);
       } finally {

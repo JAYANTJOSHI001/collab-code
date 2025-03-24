@@ -26,7 +26,7 @@ export default function LoginPage() {
       >
         <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-transparent to-transparent" />
         <div className="h-full relative z-10">
-          <Image src="/illustration.svg" alt="Logo" className="w-full h-full object-contain" />
+          <Image src="/illustration.svg" alt="Logo" className="w-full h-full object-contain" height={500} width={500} />
         </div>
       </motion.div>
 
