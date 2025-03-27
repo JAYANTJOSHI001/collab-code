@@ -16,15 +16,15 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex flex-col md:flex-row items-center justify-between min-h-screen bg-gradient-to-br from-black via-blue-950 to-black text-white overflow-hidden">
+    <div className="flex flex-col md:flex-row items-center justify-center lg:justify-start min-h-screen bg-gradient-to-br from-black via-blue-950 to-black text-white overflow-hidden">
       {/* Left Section - Illustration */}
       <motion.div 
         initial={{ opacity: 0, x: -50 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.8 }}
-        className="w-full md:w-[45%] flex items-center justify-start h-screen relative"
+        className="hidden lg:flex lg:w-[45%] items-center justify-start h-screen relative"
       >
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-transparent to-transparent lg:bg-gradient-to-br lg:from-blue-500/10 lg:via-transparent lg:to-transparent md:bg-gradient-to-br md:from-blue-400/10 md:via-transparent md:to-transparent sm:bg-gradient-to-br sm:from-blue-300/10 sm:via-transparent sm:to-transparent" />
         <div className="h-full relative z-10">
           <Image src="/illustration.svg" alt="Logo" className="w-full h-full object-contain" height={500} width={500} />
         </div>
@@ -35,10 +35,10 @@ export default function LoginPage() {
         initial={{ opacity: 0, x: 50 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.8, delay: 0.2 }}
-        className="w-full md:w-[40%] flex items-center justify-center h-screen mr-30 relative"
+        className="w-full md:w-[40%] flex items-center justify-center h-screen md:mr-30 relative"
       >
         <div className="absolute inset-0 bg-blue-500/5 blur-3xl" />
-        <div className="w-full max-w-md p-8 rounded-2xl backdrop-blur-xl bg-white/5 border border-white/10 shadow-2xl m-10 relative">
+        <div className="w-full max-w-md p-8 rounded-2xl backdrop-blur-xl bg-white/5 border border-white/10 shadow-2xl m-10 md:m-0 relative">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}

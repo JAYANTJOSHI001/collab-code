@@ -886,6 +886,8 @@ export default function Room({ params }: { params: Promise<RoomParams> }) {
     };
   }, [isConnected, socket, selectedFile, saveToHistory]);
 
+  console.log("users:",users);
+
   return (
     <div className="flex flex-col h-screen overflow-hidden">
         <Navbar />
