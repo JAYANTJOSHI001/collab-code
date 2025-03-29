@@ -1,5 +1,5 @@
 import { User } from "@/types/room";
-import { Avatar, AvatarFallback, AvatarImage } from "./avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useEffect } from "react";
 
 interface CollaboratorsListProps {
@@ -7,13 +7,15 @@ interface CollaboratorsListProps {
   currentFile?: string | null;
 }
 
-export function CollaboratorsList({ users = [] }: CollaboratorsListProps) {
+export function CollaboratorsList({ users = [], currentFile }: CollaboratorsListProps) {
+/* eslint-disable react-hooks/exhaustive-deps */
   useEffect(() => {
     console.log("Active users:", users);
+    console.log("Current file:", currentFile);
   }, [users]);
 
   return (
-    <div className="p-4 bg-black h-full border-l border-zinc-800 w-64 overflow-x-hidden">
+    <div className="p-4 bg-zinc-900 border-l border-zinc-800 w-64">
       <h3 className="text-sm font-semibold text-zinc-300 mb-4">Active Collaborators</h3>
       <div className="space-y-3">
         {users?.map((user) => (

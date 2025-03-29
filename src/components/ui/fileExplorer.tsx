@@ -1,463 +1,711 @@
-"use client";
+import React, { useState, useEffect, useCallback, memo, useRef, KeyboardEvent, MouseEvent, DragEvent, ChangeEvent } from 'react';
+import { Folder, File, ChevronDown, ChevronRight, Plus, FolderPlus, Search, X, Edit, Trash2 } from 'lucide-react';
+import { Button } from './button';
+import { Input } from './input';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from './dialog';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './dropdown-menu';
+import { motion, AnimatePresence } from 'framer-motion';
+import { cn } from '../../lib/utils';
+import { 
+  FaJs, FaReact, FaPython, FaGem, FaPhp, FaJava, FaCuttlefish, FaCodeBranch, 
+  FaHashtag, FaRust, FaTerminal, FaHtml5, FaCss3Alt, FaSass, 
+  FaDatabase, FaFileCode, FaFileAlt, FaFilePdf, FaFileImage, FaFileAudio, 
+  FaFileVideo, FaFileArchive, FaDocker
+} from "react-icons/fa";
 
-import { useState, useCallback } from "react";
-import { FaFolder, FaFolderOpen, FaChevronRight, FaChevronDown, FaPlus } from "react-icons/fa";
-import { FaFileCode, FaFileAlt, FaCode, FaCss3Alt, FaHtml5, FaJs, FaMarkdown, FaPython } from "react-icons/fa";
-import { Search } from "lucide-react";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
-import {
-  ContextMenu,
-  ContextMenuContent,
-  ContextMenuItem,
-  ContextMenuTrigger,
-} from "@/components/ui/context-menu";
-import { DndProvider, useDrag, useDrop } from 'react-dnd';
-import { HTML5Backend } from 'react-dnd-html5-backend';
-import { cn } from "@/lib/utils";
+
+interface FileContent {
+  path: string;
+  content: string;
+}
 
 interface FileExplorerProps {
+  files: FileContent[];
   repoName: string | null;
-  files: { path: string; content: string }[];
-  handleFileSelect: (file: { path: string; content: string }) => void;
+  handleFileSelect: (file: FileContent) => void;
   handleAddFile: (filePath: string) => void;
   handleAddFolder: (folderPath: string) => void;
-  handleDeleteItem?: (path: string) => void;
-  handleRenameItem?: (oldPath: string, newPath: string) => void;
+  handleDeleteFile?: (filePath: string) => void;
+  handleDeleteFolder?: (folderPath: string) => void;
+  handleRenameFile?: (oldPath: string, newPath: string) => void;
+  handleRenameFolder?: (oldPath: string, newPath: string) => void;
+  handleMoveFile?: (oldPath: string, newPath: string) => void;
+  handleMoveFolder?: (oldPath: string, newPath: string) => void;
 }
-
-interface FileNode {
-  name: string;
-  path: string;
-  type: 'file' | 'folder';
-  content?: string;
-  children?: FileNode[];
-}
-
-interface FileTreeMap {
-  [key: string]: FileNode;
-}
-
-interface DragItem {
-  path: string;
-  type: string;
-  nodeType: 'file' | 'folder';
-}
-
-const FileExplorer = ({ 
+const fileTypeIcons: Record<string, React.ReactNode> = {
+  // 🟡 JavaScript & TypeScript  
+  js: <FaJs className="text-yellow-400" />,  
+  jsx: <FaReact className="text-blue-400" />,  
+  ts: <FaJs className="text-blue-600" />,  
+  tsx: <FaReact className="text-blue-500" />,  
+  py: <FaPython className="text-green-500" />,  
+  rb: <FaGem className="text-red-600" />,  
+  php: <FaPhp className="text-indigo-500" />,  
+  java: <FaJava className="text-orange-600" />,  
+  c: <FaCuttlefish className="text-blue-700" />,  
+  cpp: <FaCodeBranch className="text-blue-800" />,
+  cs: <FaHashtag className="text-purple-700" />,
+  rs: <FaRust className="text-orange-700" />,  
+  sh: <FaTerminal className="text-green-600" />,  
+  html: <FaHtml5 className="text-orange-500" />,  
+  css: <FaCss3Alt className="text-blue-400" />,  
+  scss: <FaSass className="text-pink-400" />,  
+  sass: <FaSass className="text-pink-500" />,  
+  less: <FaCss3Alt className="text-indigo-400" />,  
+  json: <FaFileCode className="text-yellow-300" />,  
+  yaml: <FaFileAlt className="text-yellow-600" />,  
+  yml: <FaFileAlt className="text-yellow-600" />,  
+  toml: <FaFileAlt className="text-yellow-700" />,  
+  sql: <FaDatabase className="text-blue-500" />,  
+  graphql: <FaFileCode className="text-pink-600" />,  
+  env: <FaFileCode className="text-green-400" />,  
+  gitignore: <FaFileCode className="text-gray-500" />,  
+  md: <FaFileAlt className="text-gray-400" />,  
+  txt: <FaFileAlt className="text-gray-300" />,  
+  pdf: <FaFilePdf className="text-red-500" />,  
+  svg: <FaFileImage className="text-green-400" />,  
+  png: <FaFileImage className="text-purple-400" />,  
+  jpg: <FaFileImage className="text-purple-500" />,  
+  jpeg: <FaFileImage className="text-purple-500" />,  
+  gif: <FaFileImage className="text-purple-600" />,  
+  mp3: <FaFileAudio className="text-green-400" />,  
+  wav: <FaFileAudio className="text-green-500" />,  
+  mp4: <FaFileVideo className="text-blue-400" />,  
+  avi: <FaFileVideo className="text-blue-500" />,  
+  mov: <FaFileVideo className="text-blue-600" />,  
+  zip: <FaFileArchive className="text-gray-500" />,  
+  rar: <FaFileArchive className="text-gray-600" />,  
+  tar: <FaFileArchive className="text-gray-700" />,  
+  gz: <FaFileArchive className="text-gray-800" />,  
+  dockerfile: <FaDocker className="text-blue-400" />,  
+};
+// Use memo to prevent unnecessary re-renders
+const FileExplorer = memo(({ 
   files, 
+  repoName, 
   handleFileSelect, 
   handleAddFile, 
-  handleAddFolder, 
-  handleDeleteItem, 
-  handleRenameItem 
+  handleAddFolder,
+  handleDeleteFile,
+  handleDeleteFolder,
+  handleRenameFile,
+  handleRenameFolder,
+  handleMoveFile,
+  handleMoveFolder
 }: FileExplorerProps) => {
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set());
-  const [showNewFileInput, setShowNewFileInput] = useState(false);
-  const [showNewFolderInput, setShowNewFolderInput] = useState(false);
-  const [newItemPath, setNewItemPath] = useState("");
-  const [selectedPath, setSelectedPath] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [renamingPath, setRenamingPath] = useState<string | null>(null);
-  const [newName, setNewName] = useState("");
+  const [newFileName, setNewFileName] = useState('');
+  const [newFolderName, setNewFolderName] = useState('');
+  const [fileDialogOpen, setFileDialogOpen] = useState(false);
+  const [folderDialogOpen, setFolderDialogOpen] = useState(false);
+  const [selectedFilePath, setSelectedFilePath] = useState<string | null>(null);
+  const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isSearching, setIsSearching] = useState(false);
+  const [renamingItem, setRenamingItem] = useState<string | null>(null);
+  const [newItemName, setNewItemName] = useState('');
+  const [draggedItem, setDraggedItem] = useState<string | null>(null);
+  const [dropTarget, setDropTarget] = useState<string | null>(null);
+  const renameInputRef = useRef<HTMLInputElement>(null);
 
-  // Filter nodes based on search query
-  const filterNodes = useCallback((nodes: FileNode[], query: string): FileNode[] => {
-    if (!query) return nodes;
+  // Create a stable file tree structure
+  /* eslint-disable @typescript-eslint/no-explicit-any */
+  const createFileTree = useCallback(() => {
+    const tree: { [key: string]: any } = {};
     
-    return nodes.filter(node => {
-      const matchesSearch = node.name.toLowerCase().includes(query.toLowerCase());
-      if (node.type === 'folder' && node.children) {
-        const filteredChildren = filterNodes(node.children, query);
-        return matchesSearch || filteredChildren.length > 0;
+    // Sort files to ensure consistent ordering
+    const sortedFiles = [...files].sort((a, b) => a.path.localeCompare(b.path));
+    
+    for (const file of sortedFiles) {
+      // Filter by search query if searching
+      if (isSearching && searchQuery && !file.path.toLowerCase().includes(searchQuery.toLowerCase())) {
+        continue;
       }
-      return matchesSearch;
+      
+      const parts = file.path.split('/');
+      let current = tree;
+      
+      for (let i = 0; i < parts.length; i++) {
+        const part = parts[i];
+        
+        if (i === parts.length - 1) {
+          // This is a file
+          if (!current[part]) {
+            current[part] = { 
+              type: 'file', 
+              path: file.path, 
+              content: file.content,
+              extension: part.includes('.') ? part.split('.').pop()?.toLowerCase() : '' 
+            };
+          }
+        } else {
+          // This is a directory
+          if (!current[part]) {
+            current[part] = { type: 'directory', children: {} };
+          }
+          current = current[part].children;
+        }
+      }
+    }
+    
+    return tree;
+  }, [files, searchQuery, isSearching]);
+
+  // Memoize the file tree to prevent unnecessary recalculations
+  const [fileTree, setFileTree] = useState(() => createFileTree());
+  
+  // Only update the file tree when files change or search query changes
+  useEffect(() => {
+    setFileTree((prevTree) => {
+      const newTree = createFileTree();
+      return JSON.stringify(newTree) !== JSON.stringify(prevTree) ? newTree : prevTree;
+    });
+  }, [files, searchQuery, isSearching, createFileTree]);
+
+  // Auto-focus rename input when renaming starts
+  useEffect(() => {
+    if (renamingItem && renameInputRef.current) {
+      renameInputRef.current.focus();
+      
+      // Select filename without extension for easier renaming
+      const filename = renameInputRef.current.value;
+      const lastDotIndex = filename.lastIndexOf('.');
+      
+      if (lastDotIndex > 0) {
+        renameInputRef.current.setSelectionRange(0, lastDotIndex);
+      } else {
+        renameInputRef.current.select();
+      }
+    }
+  }, [renamingItem]);
+
+  const toggleFolder = useCallback((path: string, e?: MouseEvent<HTMLDivElement>) => {
+    if (e) {
+      e.stopPropagation();
+    }
+    
+    setExpandedFolders(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(path)) {
+        newSet.delete(path);
+      } else {
+        newSet.add(path);
+      }
+      return newSet;
     });
   }, []);
 
-  // Build tree structure from flat file list
-  const buildFileTree = (files: { path: string; content: string }[]): FileNode[] => {
-    const root: FileTreeMap = {};
-
-    if (!Array.isArray(files)) {
-      console.error('Invalid files prop:', files);
-      return [];
+  const handleFileClick = useCallback((file: FileContent, e: MouseEvent<HTMLDivElement>) => {
+    e.stopPropagation();
+    
+    // Handle multi-select with Ctrl/Cmd key
+    if (e.ctrlKey || e.metaKey) {
+      setSelectedItems(prev => {
+        const newSet = new Set(prev);
+        if (newSet.has(file.path)) {
+          newSet.delete(file.path);
+        } else {
+          newSet.add(file.path);
+        }
+        return newSet;
+      });
+    } 
+    // Handle range select with Shift key
+    else if (e.shiftKey && selectedFilePath) {
+      // For simplicity, we'll just select the clicked file for now
+      // A full implementation would select all files between the last selected and current
+      setSelectedItems(prev => {
+        const newSet = new Set(prev);
+        newSet.add(file.path);
+        return newSet;
+      });
+    } 
+    // Normal single select
+    else {
+      setSelectedFilePath(file.path);
+      setSelectedItems(new Set([file.path]));
+      handleFileSelect(file);
     }
+  }, [handleFileSelect, selectedFilePath]);
 
-    files.forEach(file => {
-      if (!file || !file.path) return;
+  const handleAddFileSubmit = useCallback(() => {
+    if (newFileName) {
+      handleAddFile(newFileName);
+      setNewFileName('');
+      setFileDialogOpen(false);
+    }
+  }, [newFileName, handleAddFile]);
+
+  const handleAddFolderSubmit = useCallback(() => {
+    if (newFolderName) {
+      handleAddFolder(newFolderName);
+      setNewFolderName('');
+      setFolderDialogOpen(false);
+    }
+  }, [newFolderName, handleAddFolder]);
+
+  const handleRenameSubmit = useCallback(() => {
+    if (renamingItem && newItemName && handleRenameFile && handleRenameFolder) {
+      const isFile = files.some(file => file.path === renamingItem);
       
-      const parts = file.path.split('/');
-      let currentLevel: FileTreeMap = root;
-      let currentPath = '';
+      // Get directory path
+      const parts = renamingItem.split('/');
+      parts.pop(); // Remove filename
+      const dirPath = parts.join('/');
+      
+      // Create new path
+      const newPath = dirPath ? `${dirPath}/${newItemName}` : newItemName;
+      
+      if (isFile) {
+        handleRenameFile(renamingItem, newPath);
+      } else {
+        handleRenameFolder(renamingItem, newPath);
+      }
+      
+      setRenamingItem(null);
+      setNewItemName('');
+    }
+  }, [renamingItem, newItemName, handleRenameFile, handleRenameFolder, files]);
 
-      parts.forEach((part, index) => {
-        if (!part.trim()) return;
+  const handleKeyDown = useCallback((e: KeyboardEvent<HTMLDivElement>, item: any, itemPath: string) => {
+    // Enter to open file or toggle folder
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (item.type === 'file') {
+        handleFileSelect({ path: item.path, content: item.content });
+      } else {
+        toggleFolder(itemPath);
+      }
+    }
+    
+    // F2 to rename
+    if (e.key === 'F2') {
+      e.preventDefault();
+      const itemName = itemPath.split('/').pop() || '';
+      setRenamingItem(itemPath);
+      setNewItemName(itemName);
+    }
+    
+    // Delete to remove file/folder
+    if (e.key === 'Delete' && (handleDeleteFile || handleDeleteFolder)) {
+      e.preventDefault();
+      const isFile = item.type === 'file';
+      
+      if (isFile && handleDeleteFile) {
+        handleDeleteFile(itemPath);
+      } else if (!isFile && handleDeleteFolder) {
+        handleDeleteFolder(itemPath);
+      }
+    }
+  }, [handleFileSelect, toggleFolder, handleDeleteFile, handleDeleteFolder]);
 
-        currentPath = currentPath ? `${currentPath}/${part}` : part;
-        const isFile = index === parts.length - 1;
+  const handleDragStart = useCallback((e: DragEvent<HTMLDivElement>, path: string) => {
+    e.dataTransfer.setData('text/plain', path);
+    setDraggedItem(path);
+  }, []);
 
-        if (!currentLevel[currentPath]) {
-          currentLevel[currentPath] = {
-            name: part,
-            path: currentPath,
-            type: isFile ? 'file' : 'folder',
-            content: isFile ? file.content : undefined,
-            children: isFile ? undefined : []
-          };
+  const handleDragOver = useCallback((e: DragEvent<HTMLDivElement>, path: string) => {
+    e.preventDefault();
+    setDropTarget(path);
+  }, []);
+
+  const handleDrop = useCallback((e: DragEvent<HTMLDivElement>, targetPath: string) => {
+    e.preventDefault();
+    const sourcePath = e.dataTransfer.getData('text/plain');
+    
+    if (sourcePath === targetPath) return;
+    
+    // Determine if source is a file or folder
+    const isFile = files.some(file => file.path === sourcePath);
+    
+    // Get the filename/foldername
+    const sourceItem = sourcePath.split('/').pop() || '';
+    
+    // Create new path
+    const newPath = `${targetPath}/${sourceItem}`;
+    
+    if (isFile && handleMoveFile) {
+      handleMoveFile(sourcePath, newPath);
+    } else if (!isFile && handleMoveFolder) {
+      handleMoveFolder(sourcePath, newPath);
+    }
+    
+    setDraggedItem(null);
+    setDropTarget(null);
+  }, [files, handleMoveFile, handleMoveFolder]);
+
+  const handleDragEnd = useCallback(() => {
+    setDraggedItem(null);
+    setDropTarget(null);
+  }, []);
+
+  // Recursive component for rendering the file tree
+  const renderTree = useCallback((tree: { [key: string]: any }, path: string = '') => {
+    return Object.keys(tree).map(key => {
+      const item = tree[key];
+      const itemPath = path ? `${path}/${key}` : key;
+      
+      if (item.type === 'file') {
+        // Skip .gitkeep files in the UI
+        if (key === '.gitkeep') return null;
+        
+        // If we're renaming this item, show input instead
+        if (renamingItem === itemPath) {
+          return (
+            <div key={itemPath} className="pl-6 py-1 flex items-center">
+              <Input
+                ref={renameInputRef}
+                value={newItemName}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => setNewItemName(e.target.value)}
+                onBlur={handleRenameSubmit}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handleRenameSubmit();
+                  if (e.key === 'Escape') {
+                    setRenamingItem(null);
+                    setNewItemName('');
+                  }
+                }}
+                className="h-6 text-sm"
+              />
+            </div>
+          );
         }
         
-        if (!isFile && currentLevel[currentPath].children) {
-          const children = currentLevel[currentPath].children;
-          if (children) {
-            currentLevel = children.reduce<FileTreeMap>((acc, node) => {
-              acc[node.path] = node;
-              return acc;
-            }, {});
-          }
-        }
-      });
-    });
-
-    return Object.values(root);
-  };
-
-  const fileTree = buildFileTree(files);
-
-  // Toggle folder expansion
-  const toggleFolder = (path: string) => {
-    setExpandedFolders(prev => {
-      const next = new Set(prev);
-      if (next.has(path)) {
-        // Remove all subfolders when collapsing
-        Array.from(next).forEach(p => {
-          if (p.startsWith(path + '/')) {
-            next.delete(p);
-          }
-        });
-        next.delete(path);
-      } else {
-        next.add(path);
-      }
-      return next;
-    });
-  };
-
-  // Handle new file/folder creation
-  const handleNewItem = (type: 'file' | 'folder') => {
-    if (!newItemPath.trim()) return;
-
-    if (type === 'file') {
-      handleAddFile(newItemPath);
-      setShowNewFileInput(false);
-    } else {
-      handleAddFolder(newItemPath);
-      setShowNewFolderInput(false);
-    }
-    setNewItemPath("");
-  };
-
-  // Get appropriate icon for file type
-  const getFileIcon = (name: string) => {
-    const ext = name.split('.').pop()?.toLowerCase();
-    
-    switch (ext) {
-      case 'ts':
-      case 'tsx':
-        return <FaFileCode className="text-blue-500" />;
-      case 'js':
-      case 'jsx':
-        return <FaJs className="text-yellow-500" />;
-      case 'json':
-        return <FaCode className="text-green-500" />;
-      case 'md':
-        return <FaMarkdown className="text-gray-500" />;
-      case 'css':
-        return <FaCss3Alt className="text-blue-400" />;
-      case 'html':
-        return <FaHtml5 className="text-orange-500" />;
-      case 'py':
-        return <FaPython className="text-green-500" />;
-      default:
-        return <FaFileAlt className="text-gray-400" />;
-    }
-  };
-
-  // Move item implementation
-  const moveItem = (dragPath: string, dropPath: string) => {
-    const dragItem = files.find(f => f.path === dragPath);
-    const dropItem = files.find(f => f.path === dropPath);
-    
-    if (!dragItem || !dropItem) return;
-    
-    const newPath = dropPath.includes('.')
-      ? dropPath
-      : dropPath + '/' + dragPath.split('/').pop();
-      
-    handleRenameItem?.(dragPath, newPath);
-  };
-
-  // File tree item component
-  const FileTreeItem = ({ 
-    node, 
-    level, 
-    isExpanded, 
-    isSelected 
-  }: { 
-    node: FileNode; 
-    level: number; 
-    isExpanded: boolean; 
-    isSelected: boolean; 
-  }) => {
-    const [{ isDragging }, drag] = useDrag({
-      type: 'FILE_TREE_ITEM',
-      item: { path: node.path, type: node.type, nodeType: node.type },
-      collect: (monitor) => ({
-        isDragging: monitor.isDragging(),
-      }),
-    });
-  
-    const [{ isOver }, drop] = useDrop({
-      accept: 'FILE_TREE_ITEM',
-      drop: (item: DragItem) => {
-        if (item.path !== node.path) {
-          moveItem(item.path, node.path);
-        }
-      },
-      collect: (monitor) => ({
-        isOver: monitor.isOver(),
-      }),
-    });
-  
-    return (
-      <div 
-        ref={(element) => {
-          drag(drop(element));
-        }}
-        className={cn(
-          "flex items-center px-2 py-1 text-sm hover:bg-zinc-800 transition-colors cursor-pointer",
-          isSelected ? "bg-zinc-800 text-white" : "text-zinc-400",
-          isOver ? "bg-zinc-700" : "",
-          isDragging ? "opacity-50" : "opacity-100"
-        )}
-        style={{ paddingLeft: level * 12 + 8 }}
-        onClick={() => {
-          if (node.type === 'file') {
-            handleFileSelect({ path: node.path, content: node.content || '' });
-            setSelectedPath(node.path);
-          } else {
-            toggleFolder(node.path);
-          }
-        }}
-      >
-        <div className="flex items-center gap-2 flex-1">
-          {node.type === 'folder' && (
-            <span className="w-4" onClick={(e) => {
-              e.stopPropagation();
-              toggleFolder(node.path);
-            }}>
-              {isExpanded ? <FaChevronDown size={10} /> : <FaChevronRight size={10} />}
-            </span>
-          )}
-          {node.type === 'folder' ? (
-            <span>{isExpanded ? <FaFolderOpen size={14} className="text-yellow-500" /> : <FaFolder size={14} className="text-yellow-500" />}</span>
-          ) : (
-            <span className="w-4">{getFileIcon(node.name)}</span>
-          )}
-          <span className="truncate">{node.name}</span>
-        </div>
-      </div>
-    );
-  };
-
-  // Render file tree
-  const renderTree = (nodes: FileNode[], level = 0) => {
-    const filteredNodes = searchQuery ? filterNodes(nodes, searchQuery) : nodes;
-    
-    return filteredNodes.sort((a, b) => {
-      if (a.type !== b.type) return a.type === 'folder' ? -1 : 1;
-      return a.name.localeCompare(b.name);
-    }).map((node) => {
-      const isExpanded = expandedFolders.has(node.path);
-      const isSelected = selectedPath === node.path;
-  
-      return (
-        <ContextMenu key={node.path}>
-          <ContextMenuTrigger>
-            <FileTreeItem
-              node={node}
-              level={level}
-              isExpanded={isExpanded}
-              isSelected={isSelected}
-            />
-            {renamingPath === node.path && (
+        return (
+          <motion.div 
+            key={item.path}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className={cn(
+              "pl-6 py-1 cursor-pointer hover:bg-zinc-800 flex items-center",
+              selectedItems.has(item.path) ? 'bg-zinc-800' : '',
+              draggedItem === itemPath ? 'opacity-50' : ''
+            )}
+            onClick={(e) => handleFileClick(item, e)}
+            onKeyDown={(e) => handleKeyDown(e, item, itemPath)}
+            tabIndex={0}
+            draggable
+            onDragStart={(e: any) => handleDragStart(e as DragEvent<HTMLDivElement>, itemPath)}
+            onDragOver={(e: any) => handleDragOver(e as DragEvent<HTMLDivElement>, itemPath)}
+            onDrop={(e: any) => handleDrop(e as DragEvent<HTMLDivElement>, itemPath)}
+            onDragEnd={handleDragEnd}
+          >
+            {item.extension && fileTypeIcons[item.extension] ? (
+              <div className="w-4 h-4 mr-2">{fileTypeIcons[item.extension]}</div>
+            ) : (
+              <File className="w-4 h-4 mr-2 text-white" />
+            )}
+            <span className="text-sm truncate text-white">{key}</span>
+            
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button 
+                  variant="outline" 
+                  size="icon" 
+                  className="h-6 w-6 ml-auto opacity-0 group-hover:opacity-100 text-white"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <span className="sr-only">Actions</span>
+                  <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-4 w-4">
+                    <path d="M3.625 7.5C3.625 8.12132 3.12132 8.625 2.5 8.625C1.87868 8.625 1.375 8.12132 1.375 7.5C1.375 6.87868 1.87868 6.375 2.5 6.375C3.12132 6.375 3.625 6.87868 3.625 7.5ZM8.625 7.5C8.625 8.12132 8.12132 8.625 7.5 8.625C6.87868 8.625 6.375 8.12132 6.375 7.5C6.375 6.87868 6.87868 6.375 7.5 6.375C8.12132 6.375 8.625 6.87868 8.625 7.5ZM13.625 7.5C13.625 8.12132 13.1213 8.625 12.5 8.625C11.8787 8.625 11.375 8.12132 11.375 7.5C11.375 6.87868 11.8787 6.375 12.5 6.375C13.1213 6.375 13.625 6.87868 13.625 7.5Z" fill="currentColor" fillRule="evenodd" clipRule="evenodd"></path>
+                  </svg>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setRenamingItem(itemPath);
+                    setNewItemName(key);
+                  }}
+                >
+                  <Edit className="mr-2 h-4 w-4 text-white" />
+                  <span>Rename</span>
+                </DropdownMenuItem>
+                {handleDeleteFile && (
+                  <DropdownMenuItem 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeleteFile(itemPath);
+                    }}
+                    className="text-red-500"
+                  >
+                    <Trash2 className="mr-2 h-4 w-4 text-white" />
+                    <span>Delete</span>
+                  </DropdownMenuItem>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </motion.div>
+        );
+      } else if (item.type === 'directory') {
+        const isExpanded = expandedFolders.has(itemPath);
+        const isDropTarget = dropTarget === itemPath;
+        
+        // If we're renaming this folder, show input instead
+        if (renamingItem === itemPath) {
+          return (
+            <div key={itemPath} className="pl-2 py-1 flex items-center">
               <Input
-                value={newName}
-                onChange={(e) => setNewName(e.target.value)}
-                className="mx-2 my-1 bg-zinc-800 border-zinc-700"
+                ref={renameInputRef}
+                value={newItemName}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => setNewItemName(e.target.value)}
+                onBlur={handleRenameSubmit}
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    handleRenameItem?.(node.path, `${node.path.split('/').slice(0, -1).join('/')}/${newName}`);
-                    setRenamingPath(null);
-                  }
+                  if (e.key === 'Enter') handleRenameSubmit();
                   if (e.key === 'Escape') {
-                    setRenamingPath(null);
+                    setRenamingItem(null);
+                    setNewItemName('');
                   }
                 }}
-                onBlur={() => setRenamingPath(null)}
-                autoFocus
+                className="h-6 text-sm"
               />
+            </div>
+          );
+        }
+        
+        return (
+          <div 
+            key={itemPath}
+            className={cn(
+              draggedItem === itemPath ? 'opacity-50' : '',
+              isDropTarget ? 'bg-zinc-700' : ''
             )}
-            {isExpanded && node.type === 'folder' && node.children && (
-              <div className="pl-4">
-                {renderTree(node.children, level + 1)}
-              </div>
-            )}
-          </ContextMenuTrigger>
-          <ContextMenuContent>
-            <ContextMenuItem onClick={() => {
-              if (node.type === 'file') {
-                handleFileSelect({ path: node.path, content: node.content || '' });
-                setSelectedPath(node.path);
-              } else {
-                toggleFolder(node.path);
-              }
-            }}>
-              {node.type === 'file' ? 'Open' : (isExpanded ? 'Collapse' : 'Expand')}
-            </ContextMenuItem>
-            <ContextMenuItem onClick={() => {
-              setRenamingPath(node.path);
-              setNewName(node.name);
-            }}>
-              Rename
-            </ContextMenuItem>
-            <ContextMenuItem onClick={() => handleDeleteItem?.(node.path)}>
-              Delete
-            </ContextMenuItem>
-          </ContextMenuContent>
-        </ContextMenu>
-      );
+          >
+            <div 
+              className={cn(
+                "pl-2 py-1 cursor-pointer hover:bg-zinc-800 flex items-center group",
+                selectedItems.has(itemPath) ? 'bg-zinc-800' : ''
+              )}
+              onClick={(e) => toggleFolder(itemPath, e)}
+              onKeyDown={(e) => handleKeyDown(e, item, itemPath)}
+              tabIndex={0}
+              draggable
+              onDragStart={(e) => handleDragStart(e, itemPath)}
+              onDragOver={(e) => handleDragOver(e, itemPath)}
+              onDrop={(e) => handleDrop(e, itemPath)}
+              onDragEnd={handleDragEnd}
+            >
+              {isExpanded ? (
+                <ChevronDown className="w-4 h-4 mr-1 text-white" />
+              ) : (
+                <ChevronRight className="w-4 h-4 mr-1 text-white" />
+              )}
+              <Folder className="w-4 h-4 mr-2 text-white" />
+              <span className="text-sm text-white">{key}</span>
+              
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="h-6 w-6 ml-auto opacity-0 group-hover:opacity-100 text-white"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <span className="sr-only">Actions</span>
+                    <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-4 w-4">
+                      <path d="M3.625 7.5C3.625 8.12132 3.12132 8.625 2.5 8.625C1.87868 8.625 1.375 8.12132 1.375 7.5C1.375 6.87868 1.87868 6.375 2.5 6.375C3.12132 6.375 3.625 6.87868 3.625 7.5ZM8.625 7.5C8.625 8.12132 8.12132 8.625 7.5 8.625C6.87868 8.625 6.375 8.12132 6.375 7.5C6.375 6.87868 6.87868 6.375 7.5 6.375C8.12132 6.375 8.625 6.87868 8.625 7.5ZM13.625 7.5C13.625 8.12132 13.1213 8.625 12.5 8.625C11.8787 8.625 11.375 8.12132 11.375 7.5C11.375 6.87868 11.8787 6.375 12.5 6.375C13.1213 6.375 13.625 6.87868 13.625 7.5Z" fill="currentColor" fillRule="evenodd" clipRule="evenodd"></path>
+                    </svg>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      const newFilePath = `${itemPath}/new-file.js`;
+                      handleAddFile(newFilePath);
+                    }}
+                  >
+                    <Plus className="mr-2 h-4 w-4 text-white" />
+                    <span>New File</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      const newFolderPath = `${itemPath}/new-folder`;
+                      handleAddFolder(newFolderPath);
+                    }}
+                  >
+                    <FolderPlus className="mr-2 h-4 w-4 text-white" />
+                    <span>New Folder</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setRenamingItem(itemPath);
+                      setNewItemName(key);
+                    }}
+                  >
+                    <Edit className="mr-2 h-4 w-4 text-white" />
+                    <span>Rename</span>
+                  </DropdownMenuItem>
+                  {handleDeleteFolder && (
+                    <DropdownMenuItem 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteFolder(itemPath);
+                      }}
+                      className="text-red-500"
+                    >
+                      <Trash2 className="mr-2 h-4 w-4 text-white" />
+                      <span>Delete</span>
+                    </DropdownMenuItem>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+            
+            <AnimatePresence>
+              {isExpanded && (
+                <motion.div 
+                  className="ml-2"
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  {renderTree(item.children, itemPath)}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        );
+      }
+      
+      return null;
     });
-  };
+  }, [
+    expandedFolders, 
+    selectedItems, 
+    handleFileClick, 
+    toggleFolder, 
+    renamingItem, 
+    newItemName, 
+    handleRenameSubmit, 
+    handleKeyDown,
+    handleDragStart,
+    handleDragOver,
+    handleDrop,
+    handleDragEnd,
+    draggedItem,
+    dropTarget,
+    handleAddFile,
+    handleAddFolder,
+    handleDeleteFile,
+    handleDeleteFolder
+  ]);
 
   return (
-    <DndProvider backend={HTML5Backend}>
-      <div className="w-72 bg-zinc-900 border-r border-zinc-800 flex flex-col">
-        {/* Header */}
-        <div className="p-4">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-medium text-white uppercase tracking-wider">Explorer</h3>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setShowNewFileInput(true)}
-                className="p-1.5 rounded-md hover:bg-zinc-800 text-zinc-400 hover:text-white transition-colors"
-                title="New File"
-              >
-                <FaPlus size={12} />
-              </button>
-              <button
-                onClick={() => setShowNewFolderInput(true)}
-                className="p-1.5 rounded-md hover:bg-zinc-800 text-zinc-400 hover:text-white transition-colors"
-                title="New Folder"
-              >
-                <FaFolder size={12} />
-              </button>
-            </div>
-          </div>
-
-          {/* New File Input */}
-          {showNewFileInput && (
-            <div className="mb-4">
+    <div className="bg-zinc-900 w-64 h-full overflow-y-auto border-r border-zinc-800">
+      <div className="p-4 border-b border-zinc-800 flex justify-between items-center">
+        <h2 className="text-sm font-semibold text-white">{repoName || 'Files'}</h2>
+        <div className="flex gap-1">
+          {isSearching ? (
+            <div className="flex items-center text-black">
               <Input
-                value={newItemPath}
-                onChange={(e) => setNewItemPath(e.target.value)}
-                placeholder="filename.ext"
-                className="mb-2 bg-zinc-800 border-zinc-700"
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') handleNewItem('file');
-                  if (e.key === 'Escape') setShowNewFileInput(false);
-                }}
+                placeholder="Search files..."
+                value={searchQuery}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
+                className="h-6 text-xs w-32"
               />
-              <div className="flex gap-2">
-                <button
-                  onClick={() => handleNewItem('file')}
-                  className="flex-1 px-2 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-500"
-                >
-                  Create
-                </button>
-                <button
-                  onClick={() => setShowNewFileInput(false)}
-                  className="flex-1 px-2 py-1 bg-zinc-700 text-white text-sm rounded hover:bg-zinc-600"
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* New Folder Input */}
-          {showNewFolderInput && (
-            <div className="mb-4">
-              <Input
-                value={newItemPath}
-                onChange={(e) => setNewItemPath(e.target.value)}
-                placeholder="folder/name"
-                className="mb-2 bg-zinc-800 border-zinc-700"
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') handleNewItem('folder');
-                  if (e.key === 'Escape') setShowNewFolderInput(false);
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="h-6 w-6 text-white hover:text-black" 
+                onClick={() => {
+                  setIsSearching(false);
+                  setSearchQuery('');
                 }}
-              />
-              <div className="flex gap-2">
-                <button
-                  onClick={() => handleNewItem('folder')}
-                  className="flex-1 px-2 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-500"
-                >
-                  Create
-                </button>
-                <button
-                  onClick={() => setShowNewFolderInput(false)}
-                  className="flex-1 px-2 py-1 bg-zinc-700 text-white text-sm rounded hover:bg-zinc-600"
-                >
-                  Cancel
-                </button>
-              </div>
+              >
+                <X className="h-3 w-3" />
+              </Button>
             </div>
+          ) : (
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="h-6 w-6 text-white hover:text-black"
+              onClick={() => setIsSearching(true)}
+            >
+              <Search className="h-4 w-4" />
+            </Button>
           )}
-        </div>
-
-        {/* Search Bar */}
-        <div className="px-4 mb-2">
-          <div className="relative">
-            <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-zinc-400" size={14} />
-            <Input
-              type="text"
-              placeholder="Search files..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-8 bg-zinc-800 border-zinc-700 text-sm"
-            />
-          </div>
-        </div>
-
-        <Separator className="bg-zinc-800 mb-2" />
-
-        {/* File Tree */}
-        <ScrollArea className="flex-1">
-          <div className="p-2">
-            {fileTree.length > 0 ? (
-              renderTree(fileTree)
-            ) : (
-              <div className="p-4 text-sm text-zinc-500 text-center">
-                No files found
+          
+          <Dialog open={fileDialogOpen} onOpenChange={setFileDialogOpen}>
+            <DialogTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-6 w-6 text-white hover:text-black">
+                <Plus className="h-4 w-4" />
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Add New File</DialogTitle>
+              </DialogHeader>
+              <div className="py-4 text-black">
+                <Input
+                  placeholder="Enter file path (e.g. src/app.js)"
+                  value={newFileName}
+                  onChange={(e) => setNewFileName(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') handleAddFileSubmit();
+                  }}
+                />
+                <div className="mt-4 flex justify-end text-white hover:text-black">
+                  <Button onClick={handleAddFileSubmit}>Create File</Button>
+                </div>
               </div>
-            )}
-          </div>
-        </ScrollArea>
+            </DialogContent>
+          </Dialog>
+          
+          <Dialog open={folderDialogOpen} onOpenChange={setFolderDialogOpen}>
+            <DialogTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-6 w-6 text-white hover:text-black">
+                <FolderPlus className="h-4 w-4" />
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Add New Folder</DialogTitle>
+              </DialogHeader>
+              <div className="py-4">
+                <Input
+                  placeholder="Enter folder path (e.g. src/components)"
+                  value={newFolderName}
+                  onChange={(e) => setNewFolderName(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') handleAddFolderSubmit();
+                  }}
+                />
+                <div className="mt-4 flex justify-end">
+                  <Button onClick={handleAddFolderSubmit}>Create Folder</Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
-    </DndProvider>
+      
+      <div 
+        className="py-2"
+        onKeyDown={(e) => {
+          // Global keyboard shortcuts
+          if (e.key === 'a' && (e.ctrlKey || e.metaKey)) {
+            // Select all files
+            e.preventDefault();
+            const allPaths = files.map(file => file.path);
+            setSelectedItems(new Set(allPaths));
+          }
+        }}
+        tabIndex={-1}
+      >
+        {renderTree(fileTree)}
+      </div>
+    </div>
   );
-};
+});
+
+// Add display name for debugging
+FileExplorer.displayName = 'FileExplorer';
 
 export default FileExplorer;

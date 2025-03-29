@@ -129,6 +129,8 @@ export default function Dashboard() {
             title: "Authentication Error",
             description: "Please sign in again to continue",
             variant: "destructive",
+            className: "bg-red-950 border-red-800 text-white",
+            duration: 5000,
           });
           router.push("/login");
         } else {
@@ -136,6 +138,8 @@ export default function Dashboard() {
             title: "Error",
             description: "Failed to fetch repositories",
             variant: "destructive",
+            className: "bg-red-950 border-red-800 text-white",
+            duration: 5000,
           });
         }
       } finally {
@@ -176,6 +180,8 @@ export default function Dashboard() {
             title: "Authentication Error",
             description: "Please sign in again to continue",
             variant: "destructive",
+            className: "bg-red-950 border-red-800 text-white",
+            duration: 5000,
           });
           router.push("/login");
         } else {
@@ -183,6 +189,8 @@ export default function Dashboard() {
             title: "Error",
             description: "Failed to fetch rooms",
             variant: "destructive",
+            className: "bg-red-950 border-red-800 text-white",
+            duration: 5000,
           });
         }
       } finally {
@@ -193,7 +201,7 @@ export default function Dashboard() {
     // Modified useEffect for controlled polling
     useEffect(() => {
       if (status === "unauthenticated") {
-        router.push("/login");
+        window.location.href = "/login";
         return;
       }
   
@@ -286,6 +294,8 @@ export default function Dashboard() {
           title: "Authentication Error",
           description: "Please sign in again to continue",
           variant: "destructive",
+          className: "bg-red-950 border-red-800 text-white",
+          duration: 5000,
         });
         window.location.href = "/login";
       } else {
@@ -293,6 +303,8 @@ export default function Dashboard() {
           title: "Error",
           description: "Failed to create collaboration room",
           variant: "destructive",
+          className: "bg-red-950 border-red-800 text-white",
+          duration: 5000,
         });
       }
     } finally {

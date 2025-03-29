@@ -1,6 +1,7 @@
 export interface User {
   id: string;
   name?: string;
+  image?: string | null;
   email?: string;
   color: string;
   currentFile?: string | null;
