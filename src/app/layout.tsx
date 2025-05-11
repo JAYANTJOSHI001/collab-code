@@ -1,5 +1,4 @@
 import { Metadata } from 'next'
-import { Inter } from 'next/font/google'
 import './globals.css'
 import 'xterm/css/xterm.css';
 import SessionProvider from '@/components/providers/SessionProvider'
