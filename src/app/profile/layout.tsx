@@ -1,11 +1,11 @@
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Profile',
-  description: 'Manage your Collab profile and settings',
+  title: 'User Profile | Collab',
+  description: 'View and manage your Collab profile',
   openGraph: {
-    title: 'Profile | Collab',
-    description: 'Manage your Collab profile and settings'
+    title: 'User Profile | Collab',
+    description: 'View and manage your Collab profile'
   }
 }
 

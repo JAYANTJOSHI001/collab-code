@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, use } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import Editor, { OnMount } from "@monaco-editor/react";
+import Editor, { OnMount} from "@monaco-editor/react";
 import { Side } from "@/components/ui/side";
 import * as monaco from 'monaco-editor';
 import CommitMenu from "@/components/ui/CommitMenu";
@@ -12,14 +12,18 @@ import FileExplorer from "@/components/ui/fileExplorer";
 import { useToast } from "@/hooks/use-toast";
 import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
-import { Share2, MessageSquare, History } from "lucide-react";
+import { Share2, MessageSquare, History, TerminalIcon, Save} from "lucide-react";
 import { CollaboratorsList } from "@/components/ui/CollaboratorsList";
 import { User } from "@/types/room";
 import { useSocket } from '@/hooks/useSocket';
 import { CodeHistory } from "@/components/ui/CodeHistory";
 import { formatDistanceToNow } from 'date-fns';
 import { ChatPanel } from "@/components/ui/ChatPanel";
+import AIAssistant from "@/components/editor/AIAssistant"; 
+import { Terminal } from "@/components/ui/Terminal";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
+// import { useCollaborativeCursors } from '@/hooks/useCollaborativeCursors';
 
 // interface Decoration {
 //   id: string;
@@ -67,17 +71,31 @@ export default function Room({ params }: { params: Promise<RoomParams> }) {
   const [selectedFile, setSelectedFile] = useState<string | null>(null);
   const [isCommitView, setIsCommitView] = useState(false);
   const [isGitView, setIsGitView] = useState(false);
+  const [isAIView, setIsAIView] = useState(false);
   const [isChatView, setIsChatView] = useState(false);
   const [changes, setChanges] = useState<string[]>([]);
   const [repoName, setRepoName] = useState<string | null>(null);
   const [fileContent, setFileContent] = useState<string>('');
   const [fileHistory, setFileHistory] = useState<FileHistory>({});
   const [isHistoryView, setIsHistoryView] = useState(false);
+  const [isTerminalView, setIsTerminalView] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const autoSaveIntervalRef = useRef<NodeJS.Timeout | undefined>(undefined);
+  // const { decorations, clearDecorations } = useCollaborativeCursors(
+  //   editorRef.current,
+  //   users,
+  //   selectedFile,
+  //   session?.user?.email || ''
+  // );
+  
 
   // Add a ref to track if files have been fetched
   const hasInitializedRef = useRef(false);
+
+  const [cursorPosition, setCursorPosition] = useState<{ lineNumber: number; column: number }>({
+    lineNumber: 1,
+    column: 1
+  });
 
   // Add a helper function for case-insensitive file path comparison
   const isSameFile = (file1: string, file2: string | null): boolean => {
@@ -605,28 +623,59 @@ export default function Room({ params }: { params: Promise<RoomParams> }) {
           content: fileContent?.content || "",
         };
       });
-
-      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/room/${id}/commit`, {
+  
+      console.log(`Attempting to commit ${filesToSend.length} files to repository: ${repoName}`);
+      
+      // Add proper authentication headers
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/room/${id}/commit`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${session?.accessToken}`
+        },
         credentials: "include",
         body: JSON.stringify({
           message,
           files: filesToSend,
+          createMissing: true, // Add flag to create files if they don't exist
         }),
       });
-
-      setChanges([]);
-      setIsCommitView(false);
-      toast({
-        title: "Changes committed",
-        description: "Your changes have been committed to the repository",
-      });
+  
+      // Check if the response is successful
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        console.error("Commit response error:", errorData);
+        throw new Error(errorData.message || `Failed to commit: ${response.statusText} (${response.status})`);
+      }
+  
+      // Parse the response to confirm commit was successful
+      const result = await response.json();
+      
+      if (result.success) {
+        setChanges([]);
+        setIsCommitView(false);
+        toast({
+          title: "Changes committed",
+          description: "Your changes have been committed to the repository",
+        });
+      } else {
+        throw new Error(result.message || "Commit was not successful");
+      }
     } catch (error) {
       console.error("Failed to commit changes:", error);
+      
+      // Provide more specific error messages based on common issues
+      let errorMessage = error instanceof Error ? error.message : "Failed to commit changes";
+      
+      if (errorMessage.includes("404") || errorMessage.includes("Not Found")) {
+        errorMessage = "File not found in repository. The file may need to be created first or the repository path might be incorrect.";
+      } else if (errorMessage.includes("401") || errorMessage.includes("403")) {
+        errorMessage = "Authentication error. You may not have permission to commit to this repository.";
+      }
+      
       toast({
-        title: "Error",
-        description: "Failed to commit changes",
+        title: "Commit Failed",
+        description: errorMessage,
         variant: "destructive",
         className: "bg-red-950 border-red-800 text-white",
         duration: 5000,
@@ -829,13 +878,111 @@ export default function Room({ params }: { params: Promise<RoomParams> }) {
     }
   };
 
+  const handleSaveFiles = async () => {
+    if (!selectedFile) {
+      toast({
+        title: "No file selected",
+        description: "Please select a file to save",
+        variant: "destructive",
+        className: "bg-red-950 border-red-800 text-white",
+        duration: 3000,
+      });
+      return;
+    }
+  
+    try {
+      // Get current content from editor
+      const currentContent = editorRef.current?.getValue() || fileContent;
+      
+      // Prepare the file to save
+      const fileToSave = {
+        path: selectedFile,
+        content: currentContent
+      };
+      
+      console.log('💾 [Room] Saving file:', {
+        file: selectedFile,
+        contentLength: currentContent.length
+      });
+  
+      // Call the API to save the file
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/room/${id}/save`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session?.accessToken}`,
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          files: [fileToSave]
+        }),
+      });
+  
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || `Failed to save: ${response.statusText}`);
+      }
+  
+      const result = await response.json();
+      
+      if (result.success) {
+        // Update last saved timestamp
+        setLastSaved(new Date());
+        
+        // Add to file history
+        saveToHistory(selectedFile, currentContent);
+        
+        toast({
+          title: "File saved",
+          description: `Successfully saved ${selectedFile}`,
+          duration: 3000,
+        });
+      } else {
+        throw new Error(result.message || "Save was not successful");
+      }
+    } catch (error) {
+      console.error("Failed to save file:", error);
+      toast({
+        title: "Save Failed",
+        description: error instanceof Error ? error.message : "Failed to save file",
+        variant: "destructive",
+        className: "bg-red-950 border-red-800 text-white",
+        duration: 5000,
+      });
+    }
+  };
+
   // Function to store editor instance
   const handleEditorDidMount: OnMount = (editor, monaco) => {
     console.log('🎯 [Room] Editor mounted', monaco);
     console.log('🎯 [Room] Editor mounted successfully');
     editorRef.current = editor;
+
+    editor.onDidChangeCursorPosition((e) => {
+      setCursorPosition({
+        lineNumber: e.position.lineNumber,
+        column: e.position.column
+      });
+    });
   };
 
+  const handleSuggestionSelect = (suggestion: string) => {
+    if (!editorRef.current) return;
+    
+    const model = editorRef.current.getModel();
+    if (!model) return;
+    
+    // Insert the suggestion at the current cursor position
+    editorRef.current.executeEdits('ai-suggestion', [{
+      range: {
+        startLineNumber: cursorPosition.lineNumber,
+        startColumn: cursorPosition.column,
+        endLineNumber: cursorPosition.lineNumber,
+        endColumn: cursorPosition.column
+      },
+      text: suggestion
+    }]);
+  };
   // Function to sync code with server periodically
   useEffect(() => {
     if (!isConnected || !socket) {
@@ -958,6 +1105,7 @@ export default function Room({ params }: { params: Promise<RoomParams> }) {
           setIsGitView(false);
           setIsHistoryView(false);
           setIsChatView(false);
+          setIsAIView(false);
         }}
         isCommitView={isCommitView}
         onGitClick={() => {
@@ -965,36 +1113,104 @@ export default function Room({ params }: { params: Promise<RoomParams> }) {
           setIsCommitView(false);
           setIsHistoryView(false);
           setIsChatView(false);
+          setIsAIView(false);
         }}
         isGitView={isGitView}
+        isAIView={isAIView}
+        onAIClick={() => {
+          setIsAIView(true);
+          setIsCommitView(false);
+          setIsGitView(false);
+          setIsHistoryView(false);
+          setIsChatView(false);
+        }}
       />
 
       <div className="flex flex-1 flex-col md:flex-row overflow-hidden">
           <div className="flex flex-col bg-zinc-900 w-full md:w-64 md:min-w-64 overflow-y-auto">
             <div className="p-4 flex-col gap-2">
-              <div className="flex gap-2 flex-wrap">
-              <Button
-                onClick={handleShare}
-                className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-xs sm:text-sm"
-              >
-                <Share2 className="w-4 h-4" />
-                Share Room
-              </Button>
-              <Button
-                onClick={() => setIsChatView(true)}
-                className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-xs sm:text-sm"
-              >
-                <MessageSquare className="w-4 h-4" />
-                Comment
-              </Button>
-              <Button
-                onClick={() => setIsHistoryView(true)}
-                className="flex items-center gap-2 text-xs sm:text-sm"
-                variant="outline"
-              >
-                <History className="w-4 h-4" />
-                History
-              </Button>
+            <div className="flex gap-2 flex-wrap">
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      onClick={handleShare}
+                      className="p-2 bg-blue-600 hover:bg-blue-700 w-8 h-8"
+                    >
+                      <Share2 className="w-8 h-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Share Room</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+              
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      onClick={() => setIsChatView(true)}
+                      className="p-2 bg-blue-600 hover:bg-blue-700 w-8 h-8"
+                    >
+                      <MessageSquare className="w-8 h-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Open Comments</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+              
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      onClick={() => setIsHistoryView(true)}
+                      className="p-2 w-8 h-8"
+                      variant="outline"
+                    >
+                      <History className="w-8 h-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>View History</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+              
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      onClick={() => setIsTerminalView(true)}
+                      className="p-2 w-8 h-8"
+                      variant="outline"
+                    >
+                      <TerminalIcon className="w-4 h-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Open Terminal</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      onClick={handleSaveFiles}
+                      className="p-2 w-8 h-8"
+                      variant="outline"
+                    >
+                      <Save className="w-4 h-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Save</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
               </div>
               {lastSaved && (
                 <div className="text-xs sm:text-sm text-zinc-400 flex items-center px-3 mt-2">
@@ -1086,9 +1302,26 @@ export default function Room({ params }: { params: Promise<RoomParams> }) {
                 onClose={() => setIsChatView(false)}
               />
             </div>
-          ) :(
+          ) : isTerminalView ? (
+            <div className="w-full md:w-96 md:min-w-96 md:max-w-[30%] overflow-y-auto border-t md:border-t-0 md:border-l border-zinc-800">
+              <Terminal
+                roomId={id}
+                selectedFile={selectedFile}
+                onClose={() => setIsTerminalView(false)}
+              />
+            </div>
+          ): isAIView && selectedFile ?(
+            <div className="w-96 border-l border-zinc-800 overflow-y-auto">
+              <AIAssistant
+                code={fileContent}
+                language={getLanguageFromFilename(selectedFile)}
+                cursorPosition={cursorPosition}
+                onSuggestionSelect={handleSuggestionSelect}
+              />
+            </div>
+          ):(
             <div className="hidden bg-zinc-900 lg:block w-64 min-w-64 overflow-y-auto border-l border-zinc-800">
-              <CollaboratorsList users={users} currentFile={selectedFile} />
+              <CollaboratorsList users={users} currentFile={selectedFile} roomId={id}  />
             </div>
           )
         }

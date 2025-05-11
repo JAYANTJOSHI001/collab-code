@@ -10,6 +10,7 @@ import Link from "next/link";
 export default function Navbar() {
   const { data: session } = useSession();
   const [scrolled, setScrolled] = useState(false);
+  const [isShowing, setIsShowing] = useState(true); 
 
   useEffect(() => {
     const handleScroll = () => {
@@ -19,6 +20,12 @@ export default function Navbar() {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  const handleClose = () => {
+    if(isShowing) {
+      setIsShowing(false);
+    }
+  }
 
   return (
     <nav className={`sticky top-0 z-50 transition-all duration-300 ${
@@ -86,6 +93,23 @@ export default function Navbar() {
           </motion.div>
         </div>
       </div>
+      {isShowing && (
+        <div className="bg-black/50 backdrop-blur-lg border-t border-white/10">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
+            <div className="flex items-center justify-between">
+              <p className="text-sm text-blue-200/80">
+              You&apos;re using an early test version — some features might not work perfectly yet, but we&apos;re working on it!
+              </p>
+              <button
+                onClick={handleClose}
+                className="text-blue-200/60 hover:text-blue-200 transition-colors"
+              >
+                ×
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </nav>
   );
 }

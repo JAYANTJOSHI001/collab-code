@@ -45,7 +45,7 @@ export const CodeHistory: React.FC<CodeHistoryProps> = ({ versions, onRestoreVer
   }
 
   return (
-    <div className="h-full bg-zinc-900 flex flex-col">
+    <div className="h-full bg-zinc-900 flex flex-col bg-black">
       <div className="flex items-center justify-between p-4 border-b border-zinc-800">
         <h3 className="text-sm font-medium text-zinc-200">Version History</h3>
         <Button variant="ghost" size="icon" onClick={onClose} className="text-white hover:text-black">

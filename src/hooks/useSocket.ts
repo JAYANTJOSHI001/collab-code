@@ -6,6 +6,7 @@ interface User {
   id: string;
   name?: string;
   email?: string;
+  accessToken?: string;
   color: string;
   currentFile?: string | null;
   isTyping?: boolean;

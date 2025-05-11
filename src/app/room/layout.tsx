@@ -1,11 +1,11 @@
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Collaboration Room',
-  description: 'Real-time code collaboration with your team',
+  title: 'Your Rooms | Collab',
+  description: 'View and join your collaboration rooms',
   openGraph: {
-    title: 'Collaboration Room | Collab',
-    description: 'Real-time code collaboration with your team'
+    title: 'Your Rooms | Collab',
+    description: 'View and join your collaboration rooms'
   }
 }
 

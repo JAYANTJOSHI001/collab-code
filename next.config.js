@@ -1,15 +1,37 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {
+const withTM = require("next-transpile-modules")([
+  "monaco-editor",
+]);
+
+const nextConfig = withTM({
   experimental: {
-    // Change from boolean to object if it's currently set as true
     serverActions: {
-      // Add any server actions config here
       allowedOrigins: ['localhost:3000']
     }
   },
   images: {
     domains: ['avatars.githubusercontent.com'],
   },
-}
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false
+      };
+    }
+
+    config.module.rules.push({
+      test: /\.css$/,
+      use: ['style-loader', 'css-loader'],
+    });
+
+    config.module.rules.push({
+      test: /tailwindcss-animate\/index\.js$/,
+      type: 'javascript/auto',
+    });
+
+    return config;
+  },
+});
 
 module.exports = nextConfig

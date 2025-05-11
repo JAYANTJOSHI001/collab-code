@@ -1,288 +1,299 @@
 "use client"
 
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import Image from 'next/image';
+import Link from 'next/link';
 import PublicNavbar from '@/components/ui/PublicNavbar';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { 
-  FaQuestion,
   FaBook,
-  FaTools,
-  FaExclamationTriangle
+  FaCode,
+  FaGithub,
+  FaRobot,
+  FaUsers,
+  FaLaptopCode,
+  FaRocket,
+  FaSearch,
 } from 'react-icons/fa';
 import Footer from '@/components/ui/Footer';
 
 export default function DocsPage() {
-  // Documentation categories
-  const docCategories = [
-    {
-      id: "getting-started",
-      title: "Getting Started",
-      icon: <FaBook size={20} className="text-blue-500" />,
-      description: "Learn the basics of Collab and start your first project"
-    },
-    {
-      id: "faq",
-      title: "FAQ",
-      icon: <FaQuestion size={20} className="text-purple-500" />,
-      description: "Answers to commonly asked questions"
-    },
-    {
-      id: "troubleshooting",
-      title: "Troubleshooting",
-      icon: <FaTools size={20} className="text-amber-500" />,
-      description: "Solutions to common issues"
-    }
-  ];
-
-  // Getting started steps
-  const gettingStartedSteps = [
-    {
-      title: "Sign up with GitHub",
-      description: "Click the 'Sign in with GitHub' button on the homepage. You'll be redirected to GitHub to authorize Collab.",
-      image: "/docs/signup.png" // Placeholder path
-    },
-    {
-      title: "Create a new project",
-      description: "From your dashboard, click 'New Project'. Give it a name and select a template or start from scratch.",
-      image: "/docs/dashboard.png" // Placeholder path
-    },
-    {
-      title: "Invite collaborators",
-      description: "Open your project settings and click 'Invite'. Enter GitHub usernames or email addresses to invite team members.",
-      image: "/docs/share.png" // Placeholder path
-    },
-    {
-      title: "Start coding together",
-      description: "Open the editor and start coding! You'll see your collaborators' cursors in real-time as they work.",
-      image: "/docs/coding.png" // Placeholder path
-    }
-  ];
+  const [searchQuery, setSearchQuery] = useState('');
+  
 
   // FAQ items
   const faqItems = [
     {
-      question: "Is Collab free to use?",
-      answer: "Yes, Collab is free for individual developers and small teams. We also offer premium plans for larger teams with additional features and support."
+      question: "Is there a free trial available?",
+      answer: "Yes, we have a free version of Collab available for you to try out. It includes real-time code collaboration, voice chat, and basic GitHub integration features."
+    },
+    {
+      question: "How do I invite team members?",
+      answer: "You can invite team members by going to your project settings and entering their email addresses. They'll receive an invitation to join your collaborative workspace."
+    },
+    {
+      question: "Can I use Collab with my existing GitHub repositories?",
+      answer: "Yes, Collab integrates seamlessly with GitHub. You can import your existing repositories, collaborate in real-time, and commit changes directly back to GitHub."
     },
     {
       question: "What programming languages are supported?",
-      answer: "Collab supports syntax highlighting for over 30 programming languages including JavaScript, TypeScript, Python, Java, C++, Ruby, PHP, Go, and more. Code execution is currently supported for JavaScript and Python."
-    },
-    {
-      question: "How do I recover lost code?",
-      answer: "Collab automatically saves your work and maintains a version history. To recover lost code, go to the file's history tab and restore a previous version."
-    },
-    {
-      question: "Can I use Collab for open-source projects?",
-      answer: "Absolutely! Collab is perfect for open-source collaboration. You can import your GitHub repositories and collaborate with contributors in real-time."
-    },
-    {
-      question: "How many collaborators can work on a project?",
-      answer: "The free plan supports up to 5 simultaneous collaborators. Premium plans allow for unlimited collaborators."
-    },
-    {
-      question: "Is my code secure?",
-      answer: "Yes, we take security seriously. All code is encrypted in transit and at rest. We never share your code with third parties, and private projects remain completely private."
-    },
-    {
-      question: "Can I work offline?",
-      answer: "Currently, Collab requires an internet connection for real-time collaboration. We're working on an offline mode that will sync changes when you reconnect."
-    },
-    {
-      question: "How do I report bugs or request features?",
-      answer: "You can report bugs or request features through our GitHub repository or by contacting support at support@collabcode.dev."
+      answer: "Collab supports all major programming languages including JavaScript, TypeScript, Python, Java, C++, Ruby, PHP, and many more through our Monaco Editor integration (the same editor that powers VS Code)."
     }
   ];
 
-  // Troubleshooting issues
-  const troubleshootingIssues = [
-    {
-      issue: "Can't sign in with GitHub",
-      solution: "Make sure you're allowing pop-ups in your browser. Try clearing your browser cache and cookies, then attempt to sign in again. If the problem persists, check if GitHub is experiencing any service disruptions."
-    },
-    {
-      issue: "Changes aren't syncing in real-time",
-      solution: "Check your internet connection. If you're connected but still experiencing issues, try refreshing the page. If the problem continues, another collaborator might have conflicting changes. Try to coordinate with your team."
-    },
-    {
-      issue: "Editor is slow or unresponsive",
-      solution: "Large files can cause performance issues. Try breaking your code into smaller files. Also, check if you have too many browser tabs open, as this can affect performance. Clearing your browser cache may also help."
-    },
-    {
-      issue: "Can't invite collaborators",
-      solution: "Ensure you have the correct permissions for the project. Only project owners and admins can invite new collaborators. Also, verify that you're entering the correct GitHub username or email address."
-    },
-    {
-      issue: "Code execution not working",
-      solution: "Make sure you're using a supported language for execution (currently JavaScript and Python). Check for syntax errors in your code. If the problem persists, try using a different browser."
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      window.location.href = `/docs/search?q=${encodeURIComponent(searchQuery.trim())}`;
     }
-  ];
+  };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gray-50">
       <PublicNavbar />
       
       {/* Hero Section */}
-      <section className="pt-32 pb-20 bg-gradient-to-b from-black to-blue-900 text-white">
-        <div className="container mx-auto px-4 ">
+      <section className="pt-20 pb-16 bg-gradient-to-b from-black to-blue-900 text-white">
+        <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
             className="text-center max-w-4xl mx-auto"
           >
-            <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-white to-blue-300">
-              Comprehensive Guides for Seamless Collaboration
+            <h1 className="text-4xl md:text-5xl font-bold mb-4">
+              Support & Documentation
             </h1>
-            <p className="text-xl text-blue-200 mb-12">
-              Get started with Collab, explore its features, and troubleshoot any issues effortlessly.
+            <p className="text-lg text-blue-200 mb-8">
+              Need help with something? Check out our most frequently asked questions.
             </p>
+            
+            {/* Search Bar */}
+            <div className="relative max-w-xl mx-auto mt-8">
+              <form onSubmit={handleSearch}>
+                <div className="flex items-center bg-white bg-opacity-10 rounded-full border border-blue-400 border-opacity-30 px-4 py-2">
+                  <FaSearch className="text-blue-300 mr-3" />
+                  <input
+                    type="text"
+                    placeholder="Search documentation..."
+                    className="bg-transparent w-full text-white border-none outline-none focus:outline-none focus:ring-0 focus:border-transparent focus-visible:outline-none"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                </div>
+              </form>
+            </div>
           </motion.div>
         </div>
       </section>
 
-      {/* Documentation Categories */}
-      <section className="py-16 bg-white">
+      {/* Quickfind Answers */}
+      <section className="py-12 bg-white">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
-            {docCategories.map((category, index) => (
+          <div className="max-w-7xl mx-auto">
+            <h2 className="text-2xl font-bold mb-8">Quickfind answers</h2>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {/* What is Collab? */}
               <motion.div
-                key={category.id}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: index * 0.1, duration: 0.5 }}
-                whileHover={{ y: -5 }}
-                className="bg-white rounded-xl p-6 shadow-md hover:shadow-lg transition-all border border-gray-100"
+                transition={{ duration: 0.5 }}
+                className="border border-gray-200 rounded-lg p-6 hover:shadow-md transition-all"
               >
-                <div className="block h-full">
-                  <div className="flex flex-col h-full">
-                    <div className="w-12 h-12 rounded-lg bg-blue-50 flex items-center justify-center mb-4">
-                      {category.icon}
-                    </div>
-                    <h3 className="text-xl font-semibold mb-2">{category.title}</h3>
-                    <p className="text-gray-600 text-sm">{category.description}</p>
+                <Link href="/docs/index" className="flex flex-col items-center text-center">
+                  <div className="mb-4">
+                    <FaBook className="text-2xl text-blue-600" />
                   </div>
-                </div>
+                  <h3 className="font-semibold mb-2">What is Collab?</h3>
+                  <p className="text-sm text-gray-600">
+                    Here for the first time? Learn how Collab can help you grow.
+                  </p>
+                </Link>
               </motion.div>
-            ))}
+              
+              {/* The Collab Platform */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.1, duration: 0.5 }}
+                className="border border-gray-200 rounded-lg p-6 hover:shadow-md transition-all"
+              >
+                <Link href="/docs/workspace" className="flex flex-col items-center text-center">
+                  <div className="mb-4">
+                    <FaLaptopCode className="text-2xl" />
+                  </div>
+                  <h3 className="font-semibold mb-2">The Collab Platform</h3>
+                  <p className="text-sm text-gray-600">
+                    Tracking your customers in the Collab platform for growth.
+                  </p>
+                </Link>
+              </motion.div>
+              
+              {/* Installing Collab */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.2, duration: 0.5 }}
+                className="border border-gray-200 rounded-lg p-6 hover:shadow-md transition-all"
+              >
+                <Link href="/docs/account-setup" className="flex flex-col items-center text-center">
+                  <div className="mb-4">
+                    <FaRocket className="text-2xl" />
+                  </div>
+                  <h3 className="font-semibold mb-2">Installing Collab</h3>
+                  <p className="text-sm text-gray-600">
+                    Everything you need to know to install Collab and set up your workspace.
+                  </p>
+                </Link>
+              </motion.div>
+              
+              {/* Getting started 101 */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.3, duration: 0.5 }}
+                className="border border-gray-200 rounded-lg p-6 hover:shadow-md transition-all"
+              >
+                <Link href="/docs/first-project" className="flex flex-col items-center text-center">
+                  <div className="mb-4">
+                    <FaCode className="text-2xl" />
+                  </div>
+                  <h3 className="font-semibold mb-2">Getting started 101</h3>
+                  <p className="text-sm text-gray-600">
+                    Everything you need to know to get started with Collab.
+                  </p>
+                </Link>
+              </motion.div>
+              
+              {/* Second row */}
+              {/* Messaging Customers */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.4, duration: 0.5 }}
+                className="border border-gray-200 rounded-lg p-6 hover:shadow-md transition-all"
+              >
+                <Link href="/docs/voice-chat" className="flex flex-col items-center text-center">
+                  <div className="mb-4">
+                    <FaUsers className="text-2xl" />
+                  </div>
+                  <h3 className="font-semibold mb-2">Communication Tools</h3>
+                  <p className="text-sm text-gray-600">
+                    Setting up and customizing Collab to communicate with your team.
+                  </p>
+                </Link>
+              </motion.div>
+              
+              {/* GitHub Integration */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.5, duration: 0.5 }}
+                className="border border-gray-200 rounded-lg p-6 hover:shadow-md transition-all"
+              >
+                <Link href="/docs/github" className="flex flex-col items-center text-center">
+                  <div className="mb-4">
+                    <FaGithub className="text-2xl" />
+                  </div>
+                  <h3 className="font-semibold mb-2">GitHub Integration</h3>
+                  <p className="text-sm text-gray-600">
+                    Set up and learn how to integrate with GitHub repositories.
+                  </p>
+                </Link>
+              </motion.div>
+              
+              {/* Product Features */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.6, duration: 0.5 }}
+                className="border border-gray-200 rounded-lg p-6 hover:shadow-md transition-all"
+              >
+                <Link href="/docs/features" className="flex flex-col items-center text-center">
+                  <div className="mb-4">
+                    <FaRocket className="text-2xl" />
+                  </div>
+                  <h3 className="font-semibold mb-2">Product Features</h3>
+                  <p className="text-sm text-gray-600">
+                    Explore all the features that make Collab powerful.
+                  </p>
+                </Link>
+              </motion.div>
+              
+              {/* AI Assistance */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.7, duration: 0.5 }}
+                className="border border-gray-200 rounded-lg p-6 hover:shadow-md transition-all"
+              >
+                <Link href="/docs/ai-assistance" className="flex flex-col items-center text-center">
+                  <div className="mb-4">
+                    <FaRobot className="text-2xl" />
+                  </div>
+                  <h3 className="font-semibold mb-2">AI Assistance</h3>
+                  <p className="text-sm text-gray-600">
+                    Learn about the AI-powered features that help you code faster.
+                  </p>
+                </Link>
+              </motion.div>
+            </div>
+            
+            <div className="mt-8 text-center">
+              <Link 
+                href="/docs/index"
+                className="inline-flex items-center text-blue-600 hover:text-blue-800"
+              >
+                View full documentation
+                <svg className="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                </svg>
+              </Link>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Main Documentation Content */}
-      <section className="py-16 bg-gray-50">
+      {/* General FAQs */}
+      <section className="py-12 bg-gray-50">
         <div className="container mx-auto px-4">
-          <div className="max-w-6xl mx-auto">
-            <Tabs defaultValue="getting-started" className="w-full">
-              <TabsList className="grid w-full grid-cols-3 mb-12">
-                <TabsTrigger value="getting-started" className="text-sm md:text-base">Getting Started</TabsTrigger>
-                <TabsTrigger value="faq" className="text-sm md:text-base">FAQ</TabsTrigger>
-                <TabsTrigger value="troubleshooting" className="text-sm md:text-base">Troubleshooting</TabsTrigger>
-              </TabsList>
-              
-              {/* Getting Started Tab */}
-              <TabsContent value="getting-started" id="getting-started">
-                <div className="bg-white rounded-xl p-8 shadow-md">
-                  <h2 className="text-3xl font-bold mb-6 text-blue-900">Getting Started with Collab</h2>
-                  <p className="text-gray-600 mb-8">
-                    Welcome to Collab! Follow these simple steps to start collaborating with your team in real-time.
-                  </p>
-                  
-                  <div className="space-y-12">
-                    {gettingStartedSteps.map((step, index) => (
-                      <motion.div 
-                        key={index}
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ delay: index * 0.1, duration: 0.5 }}
-                        className="flex gap-8 items-start"
-                      >
-                        <div className="flex-1">
-                          <div className="flex items-center gap-4 mb-4">
-                            <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold">
-                              {index + 1}
-                            </div>
-                            <h3 className="text-xl font-semibold">{step.title}</h3>
-                          </div>
-                          <p className="text-gray-600 mb-4">{step.description}</p>
-                        </div>
-                        <div className="flex-1">
-                          <div className="rounded-lg overflow-hidden border border-gray-200 shadow-lg">
-                            <Image
-                              src={step.image}
-                              alt={step.title}
-                              width={500}
-                              height={300}
-                              className="w-full h-auto"
-                            />
-                          </div>
-                        </div>
-                      </motion.div>
-                    ))}
-                  </div>
-                </div>
-              </TabsContent>
-              {/* FAQ Tab */}
-              <TabsContent value="faq" id="faq">
-                <div className="bg-white rounded-xl p-8 shadow-md">
-                  <h2 className="text-3xl font-bold mb-6 text-blue-900">Frequently Asked Questions</h2>
-                  <p className="text-gray-600 mb-8">
-                    Find answers to common questions about Collab.
-                  </p>
-
-                  <Accordion type="single" collapsible className="space-y-4">
-                    {faqItems.map((item, index) => (
-                      <AccordionItem key={index} value={`faq-${index}`} className="border border-gray-200 rounded-lg">
-                        <AccordionTrigger className="px-6 py-4 hover:no-underline">
-                          <span className="text-left font-semibold">{item.question}</span>
-                        </AccordionTrigger>
-                        <AccordionContent className="px-6 pb-4">
-                          <p className="text-gray-600">{item.answer}</p>
-                        </AccordionContent>
-                      </AccordionItem>
-                    ))}
-                  </Accordion>
-                </div>
-              </TabsContent>
-
-              {/* Troubleshooting Tab */}
-              <TabsContent value="troubleshooting" id="troubleshooting">
-                <div className="bg-white rounded-xl p-8 shadow-md">
-                  <h2 className="text-3xl font-bold mb-6 text-blue-900">Troubleshooting Guide</h2>
-                  <p className="text-gray-600 mb-8">
-                    Find solutions to common issues and get help when you need it.
-                  </p>
-
-                  <div className="space-y-6">
-                    {troubleshootingIssues.map((item, index) => (
-                      <motion.div
-                        key={index}
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.5 }}
-                        className="border border-gray-200 rounded-xl p-6"
-                      >
-                        <div className="flex items-start gap-4">
-                          <div className="w-12 h-12 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center flex-shrink-0">
-                            <FaExclamationTriangle size={24} />
-                          </div>
-                          <div>
-                            <h3 className="text-xl font-semibold mb-2">{item.issue}</h3>
-                            <p className="text-gray-600">{item.solution}</p>
-                          </div>
-                        </div>
-                      </motion.div>
-                    ))}
-                  </div>
-                </div>
-              </TabsContent>
-            </Tabs>
+          <div className="max-w-4xl mx-auto">
+            <h2 className="text-2xl font-bold mb-8">General FAQs</h2>
+            
+            <div className="space-y-4">
+              {faqItems.map((faq, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 10 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.1, duration: 0.5 }}
+                  className="border border-gray-200 rounded-lg bg-white overflow-hidden"
+                >
+                  <details className="group">
+                    <summary className="flex justify-between items-center p-4 cursor-pointer">
+                      <h3 className="font-medium">{faq.question}</h3>
+                      <span className="transition-transform duration-300 group-open:rotate-180">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M6 9L12 15L18 9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                      </span>
+                    </summary>
+                    <div className="p-4 pt-0 text-gray-600 border-t border-gray-100">
+                      <p>{faq.answer}</p>
+                    </div>
+                  </details>
+                </motion.div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
