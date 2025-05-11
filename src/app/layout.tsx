@@ -5,12 +5,6 @@ import 'xterm/css/xterm.css';
 import SessionProvider from '@/components/providers/SessionProvider'
 import { ToastProvider } from "@/components/providers/ToastProvider"
 
-// // Load font with display swap for better performance
-// const inter = Inter({ 
-//   subsets: ['latin'],
-//   display: 'swap',
-//   variable: '--font-inter',
-// })
 
 export const metadata: Metadata = {
   title: {
