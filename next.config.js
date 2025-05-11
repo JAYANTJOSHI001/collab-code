@@ -1,3 +1,5 @@
+const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
+
 /** @type {import('next').NextConfig} */
 const withTM = require("next-transpile-modules")([
   "monaco-editor",
@@ -18,6 +20,14 @@ const nextConfig = withTM({
         ...config.resolve.fallback,
         fs: false
       };
+      
+      // Add Monaco Editor webpack plugin
+      config.plugins.push(
+        new MonacoWebpackPlugin({
+          languages: ['javascript', 'typescript', 'html', 'css', 'json'],
+          features: ['coreCommands', 'find', 'format', 'hover', 'suggest']
+        })
+      );
     }
 
     config.module.rules.push({

@@ -6,15 +6,13 @@ interface MarkdownRendererProps {
 }
 
 const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) => {
-  if(!styles || !styles.markdown){
-    return null;
+  // Add a fallback rendering if styles aren't loaded yet
+  if (!styles || !styles.markdown) {
+    console.warn('Markdown styles not loaded properly');
+    return <div dangerouslySetInnerHTML={{ __html: content }} />;
   }
-  return (
-    <div 
-      className={styles.markdown}
-      dangerouslySetInnerHTML={{ __html: content }} 
-    />
-  );
+  
+  return <div className={styles.markdown} dangerouslySetInnerHTML={{ __html: content }} />;
 };
 
 export default MarkdownRenderer;

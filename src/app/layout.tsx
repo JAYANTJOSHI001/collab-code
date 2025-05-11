@@ -1,5 +1,5 @@
 import { Metadata } from 'next'
-import './globals.css'
+import '@/styles/globals.css'
 import 'xterm/css/xterm.css';
 import SessionProvider from '@/components/providers/SessionProvider'
 import { ToastProvider } from "@/components/providers/ToastProvider"
