@@ -1,0 +1,46 @@
+[build]
+  command = "npm run build"
+  publish = ".next"
+  
+[build.environment]
+  NODE_VERSION = "18"
+  NPM_VERSION = "9"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
+# Handle SPA routing
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+  force = false
+  conditions = {Role = ["admin", "editor", "user"]}
+
+# Environment variable configuration
+[context.production.environment]
+  NEXT_PUBLIC_API_URL = "https://api.collab-app.com"
+  NEXT_PUBLIC_SOCKET_URL = "wss://socket.collab-app.com"
+
+[context.deploy-preview.environment]
+  NEXT_PUBLIC_API_URL = "https://preview-api.collab-app.com"
+  NEXT_PUBLIC_SOCKET_URL = "wss://preview-socket.collab-app.com"
+
+[context.branch-deploy.environment]
+  NEXT_PUBLIC_API_URL = "https://dev-api.collab-app.com"
+  NEXT_PUBLIC_SOCKET_URL = "wss://dev-socket.collab-app.com"
+
+# Dev command for local development
+[dev]
+  command = "npm run dev"
+  port = 3000
+  targetPort = 3000
