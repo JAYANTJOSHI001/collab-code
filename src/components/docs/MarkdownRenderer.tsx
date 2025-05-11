@@ -6,6 +6,9 @@ interface MarkdownRendererProps {
 }
 
 const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) => {
+  if(!styles || !styles.markdown){
+    return null;
+  }
   return (
     <div 
       className={styles.markdown}

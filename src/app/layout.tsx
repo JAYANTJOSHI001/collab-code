@@ -5,7 +5,12 @@ import 'xterm/css/xterm.css';
 import SessionProvider from '@/components/providers/SessionProvider'
 import { ToastProvider } from "@/components/providers/ToastProvider"
 
-const inter = Inter({ subsets: ['latin'] })
+// // Load font with display swap for better performance
+// const inter = Inter({ 
+//   subsets: ['latin'],
+//   display: 'swap',
+//   variable: '--font-inter',
+// })
 
 export const metadata: Metadata = {
   title: {
@@ -66,7 +71,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body className="font-sans">
         <SessionProvider>
           {children}
         </SessionProvider>
