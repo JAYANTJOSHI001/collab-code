@@ -51,8 +51,6 @@ export default function Profile() {
     }
   }, [status, router, session]);
 
-  console.log("this is session::",session?.accessToken);
-
   useEffect(() => {
     const fetchProfile = async () => {
       if (!session?.accessToken){
