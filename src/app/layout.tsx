@@ -1,7 +1,6 @@
 import { Metadata } from 'next'
-import '@/styles/globals.css'
 import { Inter } from 'next/font/google'
-import 'xterm/css/xterm.css'
+import './globals.css'
 import SessionProvider from '@/components/providers/SessionProvider'
 import { ToastProvider } from "@/components/providers/ToastProvider"
 
@@ -56,7 +55,7 @@ export const metadata: Metadata = {
       }
     ]
   },
-  metadataBase: new URL('https://collab-code.com'),
+  metadataBase: new URL('https://collab-code.com'), // Add this line
 };
 
 export default function RootLayout({
@@ -66,7 +65,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${inter?.className} antialiased min-h-screen bg-background`}>
+      <body className={inter?.className}>
         <SessionProvider>
           {children}
         </SessionProvider>
