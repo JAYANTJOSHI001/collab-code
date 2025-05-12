@@ -1,19 +1,7 @@
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 
 /** @type {import('next').NextConfig} */
-const withTM = require("next-transpile-modules")([
-  "monaco-editor",
-]);
-
-const nextConfig = withTM({
-  experimental: {
-    serverActions: {
-      allowedOrigins: ['localhost:3000']
-    },
-  },
-  images: {
-    domains: ['avatars.githubusercontent.com'],
-  },
+const nextConfig = {
   webpack: (config, { isServer }) => {
     if (!isServer) {
       config.resolve.fallback = {
@@ -28,20 +16,21 @@ const nextConfig = withTM({
           features: ['coreCommands', 'find', 'format', 'hover', 'suggest']
         })
       );
+
+      // Ensure CSS files are properly processed
+      const cssRule = config.module.rules.find(
+        rule => rule.test && rule.test.toString().includes('css')
+      );
+      
+      if (cssRule) {
+        // Make sure the rule applies to all CSS files including node_modules
+        cssRule.include = undefined;
+        cssRule.exclude = undefined;
+      }
     }
-
-    config.module.rules.push({
-      test: /\.css$/,
-      use: ['style-loader', 'css-loader'],
-    });
-
-    config.module.rules.push({
-      test: /tailwindcss-animate\/index\.js$/,
-      type: 'javascript/auto',
-    });
 
     return config;
   },
-});
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;

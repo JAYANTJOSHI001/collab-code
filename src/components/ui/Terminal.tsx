@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Terminal as XTerm } from 'xterm';
 import { FitAddon } from 'xterm-addon-fit';
-import 'xterm/css/xterm.css';
 import { WebLinksAddon } from 'xterm-addon-web-links';
 import { SearchAddon } from 'xterm-addon-search';
 import { Button } from '@/components/ui/button';
