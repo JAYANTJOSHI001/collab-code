@@ -1,9 +1,11 @@
 import { Metadata } from 'next'
 import '@/styles/globals.css'
-import 'xterm/css/xterm.css';
+import { Inter } from 'next/font/google'
+import 'xterm/css/xterm.css'
 import SessionProvider from '@/components/providers/SessionProvider'
 import { ToastProvider } from "@/components/providers/ToastProvider"
 
+const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
   title: {
@@ -54,7 +56,7 @@ export const metadata: Metadata = {
       }
     ]
   },
-  metadataBase: new URL('https://collab-code.com'), // Add this line
+  metadataBase: new URL('https://collab-code.com'),
 };
 
 export default function RootLayout({
@@ -64,7 +66,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="font-sans">
+      <body className={`${inter?.className} antialiased min-h-screen bg-background`}>
         <SessionProvider>
           {children}
         </SessionProvider>
