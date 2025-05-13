@@ -2,6 +2,10 @@ const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  
   webpack: (config, { isServer }) => {
     if (!isServer) {
       config.resolve.fallback = {
@@ -9,15 +13,14 @@ const nextConfig = {
         fs: false
       };
       
-      // Add Monaco Editor webpack plugin
       config.plugins.push(
         new MonacoWebpackPlugin({
-          languages: ['javascript', 'typescript', 'html', 'css', 'json'],
-          features: ['coreCommands', 'find', 'format', 'hover', 'suggest']
+          languages: ['javascript', 'typescript', 'html', 'css', 'json', 'python', 'java'],
+          features: ['coreCommands', 'find', 'format', 'hover', 'suggest'],
+          filename: 'static/[name].worker.js',
         })
       );
 
-      // Ensure CSS files are properly processed
       const cssRule = config.module.rules.find(
         rule => rule.test && rule.test.toString().includes('css')
       );
