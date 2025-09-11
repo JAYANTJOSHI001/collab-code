@@ -1,4 +1,4 @@
-import * as monaco from 'monaco-editor';
+import { monaco } from './monaco-loader';
 
 const monacoConfig = () => {
   // Define custom theme
@@ -36,4 +36,4 @@ const monacoConfig = () => {
   });
 };
 
-export default monacoConfig; 
+export default monacoConfig;

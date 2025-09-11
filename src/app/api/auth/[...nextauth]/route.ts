@@ -1,7 +1,6 @@
 import NextAuth, { DefaultSession } from "next-auth";
-import { authOptions } from "@/lib/authOptions"; // Adjust the import path as necessary
+import { authOptions } from "@/lib/authOptions"; 
 
-// Extend the NextAuth module
 declare module "next-auth" {
   interface Session extends DefaultSession {
     accessToken?: string;
@@ -23,6 +22,5 @@ declare module "next-auth" {
   }
 }
 
-// Ensure the handler is correctly defined and exported
 const handler = NextAuth(authOptions);
 export { handler as GET, handler as POST };

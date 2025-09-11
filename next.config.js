@@ -5,6 +5,15 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+
+  turbopack: {
+    resolveAlias: {
+      underscore: 'lodash',
+      mocha: { browser: 'mocha/browser-entry.js' },
+      'monaco-editor': 'monaco-editor',
+      '@monaco-editor/react': '@monaco-editor/react',
+    },
+  },
   
   webpack: (config, { isServer }) => {
     if (!isServer) {

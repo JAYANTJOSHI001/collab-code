@@ -17,7 +17,6 @@ export const metadata: Metadata = {
   authors: [{ name: 'Collab Team' }],
   creator: 'Collab',
   publisher: 'Collab',
-  // viewport: 'width=device-width, initial-scale=1',
   openGraph: {
     type: 'website',
     locale: 'en_US',
@@ -56,7 +55,7 @@ export const metadata: Metadata = {
       }
     ]
   },
-  metadataBase: new URL('https://collab-code.com'), // Add this line
+  metadataBase: new URL('https://collab-code.com'),
 };
 
 export default function RootLayout({
