@@ -6,7 +6,7 @@ export const theme = {
       200: '#99c7fb',
       300: '#66aaf9',
       400: '#338ef7',
-      500: '#0072f5', // Main primary color
+      500: '#0072f5',
       600: '#005bc4',
       700: '#004493',
       800: '#002e62',
@@ -23,7 +23,7 @@ export const theme = {
       700: '#374151',
       800: '#1f2937',
       900: '#111827',
-      950: '#0d1117', // GitHub dark theme color
+      950: '#0d1117',
     },
     success: {
       light: '#3dd68c',
@@ -41,9 +41,9 @@ export const theme = {
       dark: '#c50e4e',
     },
     code: {
-      add: 'rgba(23, 201, 100, 0.15)',    // Success with opacity
-      remove: 'rgba(243, 18, 96, 0.15)',   // Error with opacity
-      select: 'rgba(0, 114, 245, 0.15)',   // Primary with opacity
+      add: 'rgba(23, 201, 100, 0.15)',
+      remove: 'rgba(243, 18, 96, 0.15)',  
+      select: 'rgba(0, 114, 245, 0.15)', 
     }
   },
   fonts: {

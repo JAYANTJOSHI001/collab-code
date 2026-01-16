@@ -1,5 +1,5 @@
 import NextAuth, { DefaultSession } from "next-auth";
-import { authOptions } from "@/lib/authOptions"; // Adjust the import path as necessary
+import { authOptions } from "@/lib/authOptions";
 
 // Extend the NextAuth module
 declare module "next-auth" {

@@ -1,6 +1,8 @@
-import * as monaco from 'monaco-editor';
+import loader from '@monaco-editor/loader';
 
-const monacoConfig = () => {
+const monacoConfig = async () => {
+  const monaco = await loader.init();
+
   // Define custom theme
   monaco.editor.defineTheme('custom-dark', {
     base: 'vs-dark',
@@ -34,6 +36,8 @@ const monacoConfig = () => {
       }]
     });
   });
+
+  return monaco;
 };
 
 export default monacoConfig; 

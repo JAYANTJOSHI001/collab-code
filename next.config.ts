@@ -1,9 +1,26 @@
-import type { NextConfig } from "next";
+import MonacoWebpackPlugin from 'monaco-editor-webpack-plugin';
 
-const nextConfig: NextConfig = {
-  eslint: {
-    ignoreDuringBuilds: true,
-  }
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      config.plugins.push(
+        new MonacoWebpackPlugin({
+          languages: ['javascript', 'typescript', 'python', 'java', 'cpp'],
+          filename: 'static/[name].worker.js',
+        })
+      );
+    }
+
+    config.module.rules.push({
+      test: /\.m?js$/,
+      resolve: {
+        fullySpecified: false,
+      },
+    });
+
+    return config;
+  },
 };
 
 export default nextConfig;

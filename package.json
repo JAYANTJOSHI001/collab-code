@@ -82,8 +82,9 @@
     "eslint": "^9",
     "eslint-config-next": "15.2.0",
     "file-loader": "^6.2.0",
-    "monaco-editor-webpack-plugin": "^7.1.0",
+    "monaco-editor-webpack-plugin": "^7.1.1",
     "postcss": "^8.5.3",
+    "string-replace-loader": "^3.3.0",
     "style-loader": "^4.0.0",
     "tailwindcss": "^4.0.9",
     "typescript": "^5"
