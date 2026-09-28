@@ -1,23 +1,76 @@
 import { User } from "@/types/room";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { Mic, MicOff } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { VoiceChat } from "@/components/VoiceChat";
+import { useSession } from "next-auth/react";
+import { useSocket } from "@/hooks/useSocket";
 
 interface CollaboratorsListProps {
   users?: User[];
   currentFile?: string | null;
+  roomId?: string;
 }
 
-export function CollaboratorsList({ users = [], currentFile }: CollaboratorsListProps) {
-/* eslint-disable react-hooks/exhaustive-deps */
+export function CollaboratorsList({ users = [], currentFile, roomId }: CollaboratorsListProps) {
+  const [showVoiceChat, setShowVoiceChat] = useState(false);
+  const { data: session } = useSession();
+  
+  // Create a default user object from session data
+  const socketUser = {
+    id: session?.user?.id || 'anonymous',
+    name: session?.user?.name || undefined,
+    email: session?.user?.email || undefined,
+    image: session?.user?.image || undefined
+  };
+  
+  // Pass both roomId and user to useSocket
+  const { socket } = useSocket({ 
+    roomId: roomId || "", 
+    user: socketUser 
+  });
+  
+  /* eslint-disable react-hooks/exhaustive-deps */
   useEffect(() => {
     console.log("Active users:", users);
     console.log("Current file:", currentFile);
   }, [users]);
 
+  const toggleVoiceChat = () => {
+    setShowVoiceChat(!showVoiceChat);
+  };
+
   return (
-    <div className="p-4 bg-zinc-900 border-l border-zinc-800 w-64">
-      <h3 className="text-sm font-semibold text-zinc-300 mb-4">Active Collaborators</h3>
-      <div className="space-y-3">
+    <div className="p-4 bg-zinc-900 border-l border-zinc-800 w-64 flex flex-col h-full">
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="text-sm font-semibold text-zinc-300">Active Collaborators</h3>
+        <Button 
+          variant="outline" 
+          size="sm" 
+          onClick={toggleVoiceChat}
+          className={showVoiceChat ? "bg-blue-600 hover:bg-blue-700" : ""}
+        >
+          {showVoiceChat ? <Mic className="h-4 w-4" /> : <MicOff className="h-4 w-4" />}
+        </Button>
+      </div>
+      
+      {showVoiceChat && roomId && session?.user?.id && (
+        <div className="mb-4 p-3 bg-zinc-800 rounded-md">
+          <VoiceChat 
+            socket={socket} 
+            roomId={roomId} 
+            userId={session.user.id} 
+            users={users.map(user => ({ 
+              id: user.id, 
+              name: user.name || user.email || 'Anonymous', 
+              color: user.color 
+            }))} 
+          />
+        </div>
+      )}
+      
+      <div className="space-y-3 flex-1 overflow-y-auto">
         {users?.map((user) => (
           <div key={user.id} className="flex items-center gap-3">
             <div className="relative">
@@ -62,4 +115,4 @@ export function CollaboratorsList({ users = [], currentFile }: CollaboratorsList
       </div>
     </div>
   );
-} 
+}

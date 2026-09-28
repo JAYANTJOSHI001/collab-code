@@ -305,7 +305,7 @@ export const GitOperations: React.FC<GitOperationsProps> = ({ roomId, onClose })
         description: `Creating PR "${prTitle}"...`,
       })
 
-      const response = await fetch(`https://api.github.com/repos/${repoInfo.owner}/${repoInfo.repo}/pulls`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/room/${roomId}/pr`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${session?.accessToken}`,
@@ -380,9 +380,6 @@ export const GitOperations: React.FC<GitOperationsProps> = ({ roomId, onClose })
           description: `Switched to branch "${branchName}"`,
           variant: "default",
         })
-
-        // Reload the page to refresh files
-        window.location.reload()
       } else {
         const error = await response.json().catch(() => ({}))
         throw new Error(error.message || "Failed to switch branch")

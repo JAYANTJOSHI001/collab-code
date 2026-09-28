@@ -1,16 +1,25 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { FaClipboardCheck, FaCode, FaGitAlt } from "react-icons/fa";
+import { FaClipboardCheck, FaCode, FaGitAlt, FaRobot } from "react-icons/fa";
 
 interface SideProps {
   onCommitClick: () => void;
   isCommitView: boolean;
   onGitClick: () => void;
   isGitView: boolean;
+  onAIClick: () => void;  // Add AI click handler prop
+  isAIView: boolean;      // Add AI view state prop
 }
 
-export function Side({ onCommitClick, isCommitView, onGitClick, isGitView }: SideProps) {
+export function Side({ 
+  onCommitClick, 
+  isCommitView, 
+  onGitClick, 
+  isGitView,
+  onAIClick,
+  isAIView
+}: SideProps) {
   const router = useRouter();
 
   return (
@@ -46,6 +55,19 @@ export function Side({ onCommitClick, isCommitView, onGitClick, isGitView }: Sid
             }`}
           >
             <FaGitAlt size={20} />
+          </button>
+        </li>
+        {/* Add AI Assistant button */}
+        <li>
+          <button
+            onClick={onAIClick}
+            className={`w-10 h-10 flex items-center justify-center rounded-lg transition-colors ${
+              isAIView
+                ? "bg-blue-500 text-white hover:bg-blue-400"
+                : "text-zinc-400 hover:bg-zinc-700 hover:text-white"
+            }`}
+          >
+            <FaRobot size={20} />
           </button>
         </li>
       </ul>

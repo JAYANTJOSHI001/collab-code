@@ -6,7 +6,10 @@ module.exports = {
     rules: [
       {
         test: /\.css$/,
-        use: ['style-loader', 'css-loader']
+        use: ['style-loader', 'css-loader'],
+        // Don't exclude node_modules to allow processing xterm.css
+        include: undefined,
+        exclude: undefined
       },
       {
         test: /\.ttf$/,
@@ -20,4 +23,4 @@ module.exports = {
       features: ['coreCommands', 'find', 'format', 'hover', 'suggest']
     })
   ]
-}; 
+};
