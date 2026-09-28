@@ -18,7 +18,7 @@ export default function LoginPage() {
   return (
     <div className="flex flex-col md:flex-row items-center justify-center lg:justify-start min-h-screen bg-gradient-to-br from-black via-blue-950 to-black text-white overflow-hidden">
       {/* Left Section - Illustration */}
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, x: -50 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.8 }}
@@ -31,7 +31,7 @@ export default function LoginPage() {
       </motion.div>
 
       {/* Right Section - Login Form */}
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, x: 50 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.8, delay: 0.2 }}

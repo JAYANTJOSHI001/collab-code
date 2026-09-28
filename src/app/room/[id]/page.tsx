@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState, use } from "react";
-import dynamic from 'next/dynamic';
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Side } from "@/components/ui/side";
@@ -837,7 +836,7 @@ export default function Room({ params }: { params: Promise<RoomParams> }) {
   };
 
   // Function to store editor instance
-  const handleEditorDidMount: OnMount = (editor, monaco) => {
+  const handleEditorDidMount = (editor: any, monaco: any) => {
     console.log('🎯 [Room] Editor mounted successfully');
     editorRef.current = editor;
 

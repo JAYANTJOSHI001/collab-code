@@ -1,5 +1,5 @@
 import { useRef, useCallback } from 'react';
-import * as monaco from 'monaco-editor';
+import type * as monaco from 'monaco-editor';
 
 interface AutocompleteOptions {
   enabled: boolean;
@@ -11,7 +11,7 @@ export function useAutocomplete(
   editorRef: React.RefObject<monaco.editor.IStandaloneCodeEditor | null>,
   options: AutocompleteOptions = { enabled: true, debounceMs: 500, minCharacters: 3 }
 ) {
-  const timeoutRef = useRef<NodeJS.Timeout>();
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const suggestionWidgetRef = useRef<monaco.editor.IContentWidget | null>(null);
 
   // Fetch AI suggestions from your backend
@@ -66,7 +66,7 @@ export function useAutocomplete(
       },
       getPosition: () => ({
         position,
-        preference: [monaco.editor.ContentWidgetPositionPreference.EXACT]
+        preference: [(typeof window !== 'undefined' && (window as any).monaco?.editor?.ContentWidgetPositionPreference?.EXACT) ?? 0]
       })
     };
 

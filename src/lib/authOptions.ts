@@ -122,9 +122,9 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
     async signIn({ user, account, profile }) {
-      console.log("SignIn Callback - Start:", { 
-        hasUser: !!user, 
-        hasAccount: !!account, 
+      console.log("SignIn Callback - Start:", {
+        hasUser: !!user,
+        hasAccount: !!account,
         hasProfile: !!profile,
         apiUrl: process.env.NEXT_PUBLIC_API_URL,
         userDetails: user ? {

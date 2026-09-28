@@ -146,6 +146,14 @@ private eventHandlers: Record<string, Function[]> = {};
     this.socket?.emit('git:commit', { message, userId: this.userId });
   }
 
+  isMockMode(): boolean {
+    return !this.socket?.connected;
+  }
+
+  mockFileContent(filePath: string): string {
+    return `// Collaborative file: ${filePath}\nconsole.log("Ready to collaborate");\n`;
+  }
+
   getUserId(): string {
     return this.userId;
   }

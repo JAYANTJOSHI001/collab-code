@@ -166,7 +166,7 @@ export const CodeHistory: React.FC<CodeHistoryProps> = ({ versions, onRestoreVer
                     modified={modifiedVersion.content}
                     options={{
                       readOnly: true,
-                      renderSideBySide: window.innerWidth > 768,
+                      renderSideBySide: typeof window !== 'undefined' ? window.innerWidth > 768 : true,
                       fontSize: 12,
                       minimap: { enabled: false },
                       lineNumbers: 'on',
