@@ -4,6 +4,7 @@ import 'xterm/css/xterm.css'
 import { Inter } from 'next/font/google'
 import SessionProvider from '@/components/providers/SessionProvider'
 import { ToastProvider } from "@/components/providers/ToastProvider"
+import {ThemeProvider } from "@/contexts/ThemeContext"
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -21,7 +22,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    url: 'https://collab-code.com',
+    url: 'https://collllab.netlify.app/',
     title: 'Collab - Real-Time Code Collaboration',
     description: 'Like Google Docs, but for developers. A seamless, real-time coding platform where you and your team can collaborate instantly.',
     siteName: 'Collab',
@@ -56,7 +57,7 @@ export const metadata: Metadata = {
       }
     ]
   },
-  metadataBase: new URL('https://collab-code.com'), // Add this line
+  metadataBase: new URL('https://collllab.netlify.app/'),
 };
 
 export default function RootLayout({
@@ -66,11 +67,13 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter?.className}>
-        <SessionProvider>
-          {children}
-        </SessionProvider>
-        <ToastProvider />
+      <body className={inter.className}>
+        <ThemeProvider>
+          <SessionProvider>
+            {children}
+          </SessionProvider>
+          <ToastProvider />
+        </ThemeProvider>
       </body>
     </html>
   )

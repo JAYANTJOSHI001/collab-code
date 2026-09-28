@@ -1,19 +1,20 @@
 "use client"
 import { useRef } from 'react';
-import Editor, { Monaco } from '@monaco-editor/react';
-import { editor } from 'monaco-editor';
+import Editor, { Monaco, OnMount } from '@monaco-editor/react';
+
+type IStandaloneCodeEditor = Parameters<OnMount>[0];
 
 interface CodeEditorProps {
   language: string;
   value: string;
   onChange: (value: string | undefined) => void;
-  onMount?: (editor: editor.IStandaloneCodeEditor, monaco: Monaco) => void;
+  onMount?: (editor: IStandaloneCodeEditor, monaco: Monaco) => void;
 }
 
 const CodeEditor = ({ language, value, onChange, onMount }: CodeEditorProps) => {
-  const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
+  const editorRef = useRef<IStandaloneCodeEditor | null>(null);
 
-  const handleEditorDidMount = (editor: editor.IStandaloneCodeEditor, monaco: Monaco) => {
+  const handleEditorDidMount = (editor: IStandaloneCodeEditor, monaco: Monaco) => {
     editorRef.current = editor;
     if (onMount) {
       onMount(editor, monaco);

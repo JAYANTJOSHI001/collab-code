@@ -2,8 +2,13 @@ const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  eslint: {
-    ignoreDuringBuilds: true,
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'avatars.githubusercontent.com',
+      },
+    ],
   },
   
   webpack: (config, { isServer }) => {

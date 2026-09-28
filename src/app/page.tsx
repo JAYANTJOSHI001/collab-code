@@ -1,10 +1,9 @@
 "use client"
 
-import React, { useEffect } from 'react';
-import { signIn, useSession } from 'next-auth/react';
+import React from 'react';
+import { signIn } from 'next-auth/react';
 import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
 import { FaGithub, FaCode, FaUsers, FaPlay, FaHistory, FaComments, FaMoon, FaShare} from 'react-icons/fa';
-import { useRouter } from "next/navigation";
 import PublicNavbar from '@/components/ui/PublicNavbar';
 import Footer from '@/components/ui/Footer';
 
@@ -101,8 +100,6 @@ const faqs = [
 ];
 
 export default function Home() {
-  const { data: status } = useSession();
-  const router = useRouter();
   const { scrollYProgress } = useScroll();
   const scaleProgress = useSpring(scrollYProgress, { stiffness: 100, damping: 30 });
 
@@ -116,19 +113,12 @@ export default function Home() {
     transition: {
       duration: 3,
       repeat: Infinity,
-      ease: "easeInOut"
+      ease: "easeInOut" as const
     }
   };
 
-  useEffect(() => {
-    if (status) {
-      router.push("/dashboard");
-    }
-  }, [status, router]);
-
   return (
-    <div className="min-h-screen bg-white text-black">
-      {/* Add PublicNavbar */}
+    <div className="min-h-screen bg-white text-black dark:bg-black dark:text-white transition-colors">
       <PublicNavbar />
       
       {/* Progress bar */}
@@ -335,7 +325,7 @@ export default function Home() {
       </section>
 
       {/* How It Works Section */}
-      <section className="py-32 bg-gradient-to-b from-gray-50 to-white">
+      <section className="py-32 bg-gradient-to-b from-gray-50 to-white ">
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
